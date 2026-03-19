@@ -127,6 +127,7 @@
                   "earn/sdk/attestation-setup",
                   "earn/sdk/best-practices",
                   "earn/sdk/building",
+                  "earn/sdk/go-live-checklist",
                   "earn/sdk/troubleshoot"
                 ]
               },
