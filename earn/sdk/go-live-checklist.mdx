@@ -1,0 +1,20 @@
+---
+title: 'Go-Live Checklist'
+sidebarTitle: 'Go-Live Checklist'
+description: 'Make sure you have completed these steps before going live with the ZBD Earn SDK.'
+icon: 'clipboard-check'
+---
+
+Before releasing your game to production, make sure you have completed the following:
+
+<Steps>
+  <Step title="Set up attestation">
+    Ensure attestation is fully configured for both Android and iOS. For iOS, this includes enabling App Attest on your provisioning profile. See the [Attestation Set Up](/earn/sdk/attestation-setup) guide.
+  </Step>
+  <Step title="Handle maintenance mode">
+    Your game should gracefully handle ZBD platform maintenance periods by checking the `maintenance` flag on **every** SDK response. See [Handling Maintenance Mode](/earn/sdk/integration#handling-maintenance-mode).
+  </Step>
+  <Step title="Test your game">
+    Make sure you have thoroughly tested your game with the ZBD team or your QA team before going live.
+  </Step>
+</Steps>

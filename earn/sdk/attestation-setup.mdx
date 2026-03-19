@@ -69,6 +69,31 @@ During development, you are likely using a custom keystore in Unity, so we will 
 </Note>
 
 ## iOS
+
+### App Attest
+
+For iOS builds, you must have **App Attest** enabled on your provisioning profile. The Earn SDK backend uses App Attest to validate the integrity of your game. Without it, attestation checks will fail.
+
+To enable App Attest:
+<Steps>
+    <Step title="Sign in to your Apple Developer account">
+    </Step>
+    <Step title="Navigate to Certificates, Identifiers & Profiles">
+    </Step>
+    <Step title="Select your App ID under Identifiers">
+    </Step>
+    <Step title="Scroll to the App Attest capability and enable it">
+    </Step>
+    <Step title="Save your changes and regenerate your provisioning profile">
+    </Step>
+</Steps>
+
+<Warning>
+    Make sure to regenerate and download your provisioning profile after enabling App Attest, then update it in Xcode.
+</Warning>
+
+### Bundle ID & Team ID
+
 For iOS we need your **Bundle ID** i.e.`app id`, e.g.`com.domain.appname` and your **Team ID**.
 To find your app's Team ID for Apple Developer:
 <Steps>
