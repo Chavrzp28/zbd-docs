@@ -98,6 +98,7 @@
                       }
                     ]
                   },
+                  "earn/sdk/withdrawal-limits",
                   {
                     "group": "User Status",
                     "icon": "circle-user",
