@@ -1,0 +1,309 @@
+---
+title: 'Creative Modals'
+sidebarTitle: 'Creative Modals'
+description: 'Show full-screen image modals over gameplay, configured by ZBD without an app store release.'
+icon: 'images'
+---
+
+Creatives are full-screen image modals your game can show over gameplay. ZBD sets up the creative and hosts the artwork; your game shows it with one line of code. Changing artwork, copy, or behavior later is a ZBD-side change — **no SDK update and no app store release**.
+
+Typical uses:
+
+- An onboarding carousel explaining how rewards work
+- A reminder when a player has an unclaimed balance
+- A seasonal or promotional announcement
+- A/B testing two versions of the same message
+
+<Note>
+Requires Unity SDK v1.1.7 or above.
+</Note>
+
+## Quick start
+
+```csharp
+ZBDController.Instance.ShowCreative("cr_onboarding_tour");
+```
+
+That's the whole integration. The SDK fetches your app's creatives during `Init()` and preloads their images, so the modal appears instantly.
+
+To react to what the player did:
+
+```csharp
+ZBDController.Instance.ShowCreative("cr_onboarding_tour", result =>
+{
+    if (!result.shown)
+    {
+        Debug.Log($"Nothing shown: {result.error}");
+        return;
+    }
+
+    if (result.dismissReason == "cta")
+        Debug.Log("Player tapped through to rewards");
+    else
+        Debug.Log($"Closed on page {result.lastPage + 1} of {result.pageCount}");
+});
+```
+
+## Setting up a creative
+
+<Warning>
+Creatives can't be configured self-serve yet. To set one up, reach out to your account manager — they'll configure it with you and host your artwork.
+</Warning>
+
+Tell your account manager the following, and send them your images:
+
+| What to provide | Notes |
+|---|---|
+| **Creative key** | The ID your game will pass to `ShowCreative()`. Choose it carefully — it can't be changed later, because analytics reference it. |
+| **Number of pages** | One page = a simple modal. Several = a swipeable carousel with page dots. |
+| **Locale** | Only if you need it. Leave it out for a creative that should show to everyone (see [Localization](#localization)). |
+| **Transition** | How the modal appears: `popup`, `fade`, or `slide`. Defaults to `fade`. |
+| **Tap opens rewards** | Whether tapping the **last** page opens the ZBD rewards interface. Off = the creative is purely informational. |
+
+Two further properties are set on the ZBD side and worth knowing about:
+
+| Property | What it does |
+|---|---|
+| **Backdrop dismisses** | Whether tapping the dimmed area outside the image closes the modal. The close button always works regardless. |
+| **Active** | Inactive creatives are not served to the SDK at all. This is how a creative is retired — preferred over deleting, so historical analytics keep resolving. |
+
+### Pages and navigation
+
+Each page needs **at least one image** — portrait, landscape, or both. The SDK picks whichever matches the device's current orientation, and swaps automatically when the player rotates. If you supply only one, it's used in both orientations.
+
+<Note>
+Portrait art is **not** required. If your game is landscape-only, send landscape art alone — there's no need to supply portrait images that would never be shown. The same applies in reverse for portrait-only games.
+</Note>
+
+On a multi-page creative the player can:
+
+- **Tap** the image to advance to the next page
+- **Swipe** left or right to move between pages
+- Use the **next arrow** (hidden on the last page)
+- See their position via **page dots**
+
+On the final page, tapping either opens the rewards interface or does nothing, depending on the **Tap opens rewards** setting.
+
+### Image requirements
+
+<Warning>
+**Images must be HTTPS PNG or JPEG.**
+
+- **HTTPS only** — plain HTTP is blocked by iOS App Transport Security and Android's cleartext policy.
+- **PNG or JPEG only** — WebP, SVG, GIF, and AVIF cannot be decoded on device, even though they preview fine in a browser.
+- Serve images with a `Content-Type` of `image/png` or `image/jpeg` and **no `Content-Encoding` header**. An image that displays correctly in a browser can still fail to decode on device if it's served with an encoding header.
+</Warning>
+
+**Maximum 5 pages** per creative. Every page is downloaded before the modal appears, so keep image dimensions reasonable — target the device resolution you actually need, not the largest possible.
+
+### Localization
+
+The **Locale** field controls who sees a creative:
+
+- **Not set** — served to everyone. This is what you want for most creatives.
+- **Set** (e.g. `en`, `en-GB`, `pt-BR`) — served only to players whose locale matches.
+
+<Warning>
+If a creative key has *only* localized versions and none without a locale, players whose locale doesn't match will see **nothing**. When you localize, always keep one version with no locale as the fallback.
+</Warning>
+
+## API reference
+
+All methods are on `ZBDController.Instance`.
+
+### ShowCreative
+
+```csharp
+ShowCreative(string creativeId, Action<ZBDCreativeResult> onClosed = null)
+```
+
+Shows the creative with the given key. The callback fires when the modal closes — or immediately, with `shown == false`, if it couldn't be shown.
+
+Your game decides *when* a creative appears. The SDK does no scheduling or frequency capping, so you're free to build your own rules (once per session, after level 3, only when a balance is unclaimed, and so on). See [Best practices](#best-practices).
+
+### CloseCreative
+
+```csharp
+CloseCreative()
+```
+
+Closes the visible creative, or cancels one that is still loading. The `ShowCreative` callback fires with `dismissReason == "programmatic"`.
+
+## The result object
+
+`ZBDCreativeResult`, passed to your `ShowCreative` callback:
+
+| Field | Type | Description |
+|---|---|---|
+| `shown` | `bool` | Whether a creative actually displayed. |
+| `creativeId` | `string` | The key you requested. |
+| `dismissReason` | `string` | How it closed — see below. |
+| `pageCount` | `int` | Total pages in the creative. |
+| `lastPage` | `int` | Furthest page the player reached (0-based). |
+| `error` | `string` | Why nothing was shown. Only set when `shown == false`. |
+
+### Dismiss reasons
+
+| Value | Meaning |
+|---|---|
+| `"cta"` | **The player tapped the creative.** If *Tap opens rewards* is on, the rewards interface is opening. |
+| `"close"` | The player used the close button. |
+| `"backdrop"` | The player tapped outside the image. |
+| `"programmatic"` | Your game called `CloseCreative()`. |
+| `"safety-timeout"` | An internal safeguard closed the modal. Rare. |
+| `"none"` | Placeholder value; not seen on a normal close. |
+
+Together, `lastPage` and `pageCount` give you a drop-off funnel: you can tell whether a player read all three pages and tapped through, or bailed on page one.
+
+### When `shown` is false
+
+| `error` | Cause |
+|---|---|
+| `Creative not found: '<key>'` | No **active** creative with that key for this app. Check spelling with your account manager, and that your build is pointed at the right environment. |
+| `A creative is already showing or pending` | One creative at a time. Wait for the previous callback. |
+| `Creative images could not be loaded` | An image failed to download or decode — usually the format or `Content-Type` rules above. |
+| `Creative has no usable image` | The creative has no valid page images configured. |
+| `A creative ID is required` | Empty key passed. |
+| `Cancelled before display` | `CloseCreative()` was called while it was still loading. |
+
+Every one of these is a clean no-op from the player's perspective: nothing renders and your callback runs, so it's safe to call `ShowCreative` optimistically.
+
+## Best practices
+
+### Show a short tutorial on first launch
+
+A one- to three-page tutorial explaining how rewards work is the highest-value creative you can ship. Show it once, at a natural moment after `Init()` succeeds — not mid-gameplay.
+
+Use `PlayerPrefs` so it only ever shows once:
+
+```csharp
+private const string TutorialShownKey = "zbd_tutorial_shown";
+
+ZBDController.Instance.Init(completion =>
+{
+    if (!completion.success) return;
+
+    // Already seen it — don't show it again
+    if (PlayerPrefs.GetInt(TutorialShownKey, 0) == 1) return;
+
+    ZBDController.Instance.ShowCreative("cr_onboarding_tour", result =>
+    {
+        // Only record it if it actually displayed, so a failed
+        // image load doesn't suppress the tutorial forever
+        if (!result.shown) return;
+
+        PlayerPrefs.SetInt(TutorialShownKey, 1);
+        PlayerPrefs.Save();
+    });
+});
+```
+
+<Note>
+Set your "already shown" flag inside the callback and only when `result.shown` is `true`. If you set it before calling `ShowCreative`, a network or image failure would permanently prevent the player from ever seeing the tutorial.
+</Note>
+
+### Nudge players who have an unclaimed balance
+
+A creative that reflects the player's actual progress converts far better than a generic announcement. Call [`GetBalance`](/earn/sdk/user-balance) first, and if the player has something to withdraw, show a creative along the lines of *"You've earned rewards — tap to withdraw."*
+
+Ask your account manager to enable **Tap opens rewards** on this creative, so tapping it opens the rewards interface directly.
+
+```csharp
+private const string BalanceNudgeKey = "zbd_balance_nudge_shown";
+
+void MaybeShowBalanceNudge()
+{
+    // Only nudge once
+    if (PlayerPrefs.GetInt(BalanceNudgeKey, 0) == 1) return;
+
+    ZBDController.Instance.GetBalance(balance =>
+    {
+        if (!balance.success || balance.maintenance) return;
+
+        // Nothing to withdraw yet — don't nudge
+        if (balance.balance <= 0) return;
+
+        ZBDController.Instance.ShowCreative("cr_unclaimed_balance", result =>
+        {
+            if (!result.shown) return;
+
+            PlayerPrefs.SetInt(BalanceNudgeKey, 1);
+            PlayerPrefs.Save();
+
+            if (result.dismissReason == "cta")
+                Debug.Log("Player tapped through to withdraw");
+        });
+    });
+}
+```
+
+If you'd rather nudge periodically than only once, store a timestamp instead of a flag and re-show after a cooldown you're comfortable with.
+
+## Styling
+
+The SDK draws its own close button, next arrow, and page dots. Any of them can be replaced with your own art or hidden entirely, so the modal fits your game.
+
+**You don't need to call `SetCreativeStyle` at all** — the SDK's built-in defaults apply automatically. Only call it if you want to change something:
+
+```csharp
+SetCreativeStyle(ZBDCreativeStyle style)
+```
+
+Call it once after `Init()`, before your first `ShowCreative`.
+
+```csharp
+ZBDController.Instance.SetCreativeStyle(new ZBDCreativeStyle
+{
+    closeButtonSprite = myCloseSprite,
+    nextButtonSprite  = myArrowSprite,
+    pageDotActiveSprite   = myDotOn,
+    pageDotInactiveSprite = myDotOff,
+    backdropColor = new Color(0.05f, 0f, 0.15f, 0.8f),
+    showNextButton = false,   // the artwork already draws its own NEXT button
+});
+```
+
+Every field is optional — omit one and the SDK's built-in control is used. If you've set a custom style and want to go back, pass `null` to reset to defaults.
+
+| Group | Fields |
+|---|---|
+| **Sprites** | `closeButtonSprite`, `nextButtonSprite`, `pageDotActiveSprite`, `pageDotInactiveSprite` |
+| **Visibility** | `showCloseButton`, `showNextButton`, `showPageDots` |
+| **Colors** | `backdropColor`, `closeButtonColor`, `nextButtonColor`, `pageDotActiveColor`, `pageDotInactiveColor`, `iconColor` |
+| **Size & position** | `closeButtonSize`, `closeButtonOffset`, `nextButtonSize`, `nextButtonOffset`, `pageDotSize`, `pageDotSpacing`, `pageDotBottomOffset` |
+
+Sizes and offsets are in the overlay's reference space (1080×1920, scaled to fit), not raw pixels, so they stay consistent across devices.
+
+<Note>
+If you set `showCloseButton = false` on a creative that also has *Backdrop dismisses* turned off, the SDK re-enables the close button anyway — otherwise the player would have no way to close the modal.
+</Note>
+
+## Refreshing the creative list
+
+```csharp
+FetchCreatives(Action<ZBDCreativesResponse> callback = null)
+```
+
+Optional. Refreshes the cached creative list. The SDK already fetches during `Init()`, and `ShowCreative` fetches lazily if needed, so most games never call this.
+
+## Behavior notes
+
+**Preloading.** Creatives and their images are fetched during `Init()` so the first `ShowCreative` is instant. If the fetch fails (no network, for example), `Init()` still completes normally — creatives simply retry on the next attempt.
+
+**One at a time.** Calling `ShowCreative` while another creative is showing or loading returns `shown = false` rather than stacking modals.
+
+**Rotation.** The modal handles rotation while visible, swapping to the other orientation's artwork where one is provided.
+
+**Input.** While a creative is visible, its backdrop absorbs taps so the game underneath doesn't receive them.
+
+**A/B testing.** Ask for two creatives with different keys, assign players to a variant in your own code, and call `ShowCreative` with the matching key. Your game keeps full control of the split.
+
+## Troubleshooting
+
+**"Creative not found" but it was just set up.** Confirm the creative key spelling with your account manager, check that it's been made active, and make sure your build is pointed at the same environment it was configured in. The **App ID** must match your game's token exactly — it's case-sensitive.
+
+**The modal doesn't appear and I get "Creative images could not be loaded".** Almost always the image: confirm it's HTTPS, PNG or JPEG, and served with an image `Content-Type` and no `Content-Encoding` header. A browser preview succeeding does not guarantee the device can decode it.
+
+**Nothing shows for some players only.** Check the locale — a creative with a locale set is only served to matching players. Ask for a version with no locale as a fallback.
+
+**A newly updated creative isn't picked up.** The creative list is cached for the session. Restart the app, or call `FetchCreatives()` to refresh.

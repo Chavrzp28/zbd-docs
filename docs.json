@@ -187,6 +187,12 @@
                 ]
               },
               {
+                "group": "Creatives",
+                "pages": [
+                  "earn/sdk/creatives"
+                ]
+              },
+              {
                 "group": "Go Live",
                 "pages": [
                   "earn/sdk/error-handling",
