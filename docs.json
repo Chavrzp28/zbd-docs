@@ -133,8 +133,7 @@
                       "earn/sdk/url-scheme",
                       "earn/sdk/attestation-setup"
                     ]
-                  },
-                  "earn/sdk/video-walkthrough"
+                  }
                 ]
               },
               {
@@ -175,15 +174,13 @@
                       "earn/sdk/manage-withdrawal-limits"
                     ]
                   },
-                  {
-                    "group": "User Status",
-                    "icon": "circle-user",
-                    "pages": [
-                      "earn/sdk/user-status",
-                      "earn/sdk/manage-user-linking"
-                    ]
-                  },
                   "earn/sdk/manage-controls-dashboard"
+                ]
+              },
+              {
+                "group": "Developer Dashboard",
+                "pages": [
+                  "earn/sdk/manage-user-linking"
                 ]
               },
               {
