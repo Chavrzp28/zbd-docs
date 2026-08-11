@@ -41,19 +41,23 @@ The widget uses the country resolved from the user's IP before KYC. After KYC,
 it uses the user's verified residential country to select the available bank
 rail.
 
-| Bank rail | Supported countries |
-| --- | --- |
-| ACH / USD bank | United States (`US`) |
-| SCT / EUR bank | Austria (`AT`), Belgium (`BE`), Germany (`DE`), Denmark (`DK`), Estonia (`EE`), Spain (`ES`), Finland (`FI`), France (`FR`), Italy (`IT`), Lithuania (`LT`), Latvia (`LV`), Netherlands (`NL`), Poland (`PL`), Portugal (`PT`), and Sweden (`SE`) |
+### USD bank cashout
 
-SCT is unavailable in Bulgaria (`BG`), Croatia (`HR`), Cyprus (`CY`), Czechia
-(`CZ`), Greece (`GR`), Hungary (`HU`), Ireland (`IE`), Luxembourg (`LU`), Malta
-(`MT`), Romania (`RO`), Slovakia (`SK`), Slovenia (`SI`), Switzerland (`CH`),
-and every other country outside the SCT list above. Unsupported countries do not
-receive the EUR/SCT bank rail.
+USD bank cashout (ACH) is available only in the United States.
 
-The widget is not supported for users in Cuba (`CU`), Iran (`IR`), North Korea
-(`KP`), or Syria (`SY`).
+### EUR bank cashout
+
+EUR bank cashout (SCT) is available in Austria, Belgium, Denmark, Estonia,
+Finland, France, Germany, Italy, Latvia, Lithuania, the Netherlands, Poland,
+Portugal, Spain, and Sweden.
+
+SCT is not available in other countries, including Bulgaria, Croatia, Cyprus,
+Czechia, Greece, Hungary, Ireland, Luxembourg, Malta, Romania, Slovakia,
+Slovenia, and Switzerland.
+
+### Restricted locations
+
+The widget is not supported for users in Cuba, Iran, North Korea, or Syria.
 
 ## Integration Flow
 
