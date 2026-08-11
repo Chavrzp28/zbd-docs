@@ -54,7 +54,7 @@ ZBDController.Instance.Init(userId, completion =>
       Debug.Log("success");
     } else if (completion.maintenance) {
       // Platform is in maintenance mode — display a message to the user
-      Debug.Log("ZBD is currently under maintenance. Please try again later.");
+      Debug.Log("Rewards are temporarily unavailable. Please try again later.");
     } else {
       Debug.LogError(completion.error);
     }
@@ -78,7 +78,7 @@ ZBDController.Instance.Init(completion =>
 	  if (completion.success) {
 	    Debug.Log("success");
 	  } else if (completion.maintenance) {
-	    Debug.Log("ZBD is currently under maintenance. Please try again later.");
+	    Debug.Log("Rewards are temporarily unavailable. Please try again later.");
 	  } else {
       Debug.LogError(completion.error);
     }
@@ -94,7 +94,7 @@ The easiest way to do this is to present the ZBD modal. If the user has not regi
 
 ### Handling Maintenance Mode
 
-The ZBD platform may occasionally enter maintenance mode. When this happens, the SDK response will include a `maintenance` flag set to `true`. You should check for this flag during initialization and display an appropriate message to your users.
+The ZBD platform may occasionally enter maintenance mode. When this happens, the SDK response will include a `maintenance` flag set to `true`. Check for this flag during initialization and respond based on the player: hide rewards UI entirely for players who haven't started earning, and show a brief, ZBD-free message (e.g. *"Rewards are temporarily unavailable"*) for players who already have a balance. See [Error Handling](/earn/sdk/error-handling#maintenance-mode) for the full guidance.
 
 The `Init` response object contains the following fields:
 

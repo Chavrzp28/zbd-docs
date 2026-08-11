@@ -14,6 +14,8 @@ This keeps your reward economy sustainable: users only withdraw what they've hel
 
 When the ZBD Earn SDK is active on the client, the device pings the server every 20 seconds. Based on the reward schedule configured for your app, the player's withdrawal limit automatically increases every minute by a set amount.
 
+The limit caps what a player can withdraw in a **24-hour window** — it resets daily, and any balance above it carries forward.
+
 This time-based model works as a rough proxy for revenue — the longer a user is engaged, the more ad impressions and in-app interactions they likely generate, and the more they can withdraw. However, this is a crude estimation. Engagement time doesn't always correlate directly with revenue — a user could be active for a long time without watching ads or making purchases.
 
 For more precise control, use the server-side API to [increase withdrawal limits based on actual revenue events](#increasing-limits-based-on-actual-revenue).
@@ -32,7 +34,20 @@ The automatic time-based increase covers most cases, but you may want to increas
 
 When you receive one of these events, call the withdrawal limit API to increase the user's limit accordingly:
 
+Use the `currency` that matches your game's reward model — `POINT` for most games, `MSATS` only if your game is Bitcoin-denominated. See [choosing the right currency](/earn/sdk/withdrawal-limits#choosing-the-right-currency).
+
 <CodeGroup>
+```bash Points (default)
+curl --request POST \
+  --url https://api.zbdpay.com/api/v1/rewards/user/<rewardsUserId>/withdrawal-limit \
+  --header 'Content-Type: application/json' \
+  --header 'x-api-key: <x-api-key>' \
+  --data '{
+    "amount": 5000,
+    "currency": "POINT"
+  }'
+```
+
 ```bash Bitcoin (sats)
 curl --request POST \
   --url https://api.zbdpay.com/api/v1/rewards/user/<rewardsUserId>/withdrawal-limit \
@@ -41,17 +56,6 @@ curl --request POST \
   --data '{
     "amount": 5000,
     "currency": "MSATS"
-  }'
-```
-
-```bash Points
-curl --request POST \
-  --url https://api.zbdpay.com/api/v1/rewards/user/<rewardsUserId>/withdrawal-limit \
-  --header 'Content-Type: application/json' \
-  --header 'x-api-key: <x-api-key>' \
-  --data '{
-    "amount": 5000,
-    "currency": "POINT"
   }'
 ```
 </CodeGroup>

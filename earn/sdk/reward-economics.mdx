@@ -17,13 +17,13 @@ This page is for the PM or tech lead handling pre-integration setup. It covers t
 |-----------|---------------------------|-------|
 | **Reward budget** | 10% of cumulative player LTV | Covers all revenue (IAP + ads). Adjustable server-side at any time. In practice, players earn 30–50% of their total possible budget. Few players reach the ceiling. |
 | **New player baseline** | 10% of average LTV for that GEO | Players in days 0–7 have zero LTV. They still need a starting reward amount. Suggested range: \$0.005–\$0.01 per trigger. |
-| **Daily withdrawal limit** | 20% of average LTV for that GEO | Must be set from day one. Caps your fraud exposure and creates a daily return habit ("come back tomorrow to earn more"). |
+| **Daily withdrawal limit** | 20% of average LTV for that GEO | Set a sensible value from day one (adjustable later). Caps your fraud exposure and creates a daily return habit ("come back tomorrow to earn more"). |
 | **Minimum withdrawal** | \$0.01 | Minimum amount a player can withdraw in a single transaction. |
 | **Reward ceiling per trigger** | \$0.10 | Maximum reward amount per single event. Caps exposure from any one gameplay moment. |
 | **Virtual currency exchange rate** | \$0.0001 per unit | Determines how granular your rewards feel. At this rate, 1,000 units = \$0.10. See [Soft Currency Model](/earn/sdk/soft-currency). |
 
 <Note>
-  None of these values need to be perfect at launch. The reward budget and per-trigger ceiling are adjustable from your server without a client build. Focus on setting the daily withdrawal limit correctly from day one. It's the most important fraud control and the hardest to change retroactively.
+  None of these values need to be perfect at launch — the reward budget, per-trigger ceiling, and daily withdrawal limit are all adjustable after launch without a client build. Still, give the daily withdrawal limit the most thought up front: it's your most important fraud control, and lowering it later is visible to players who have grown used to the higher cap.
 </Note>
 
 ## Reward delivery: client-side vs. server-side
@@ -105,7 +105,7 @@ curl --request GET \
   "data": {
     "rewardsBalance": 30000,
     "withdrawableLimit": 1000,
-    "currency": "MSATS"
+    "currency": "POINT"
   }
 }
 ```
