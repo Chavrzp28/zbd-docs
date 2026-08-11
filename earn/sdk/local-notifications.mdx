@@ -1,11 +1,11 @@
 ---
 title: 'Local Notifications'
 sidebarTitle: 'Local Notifications'
-description: 'Bring players back to keep earning or cash out, with SDK-scheduled local reminders — no push infrastructure required.'
+description: 'Bring players back to keep earning or claim their rewards, with SDK-scheduled local reminders — no push infrastructure required.'
 icon: 'bell'
 ---
 
-A player who leaves with an uncashed balance is the easiest player to win back. Local reminders let you reach them — *"you have earnings waiting"*, *"you're 80% of the way to an Amazon card"* — without any push infrastructure.
+A player who leaves with an unclaimed balance is the easiest player to win back. Local reminders let you reach them — *"you have rewards to claim"*, *"you're 80% of the way to an Amazon card"* — without any push infrastructure.
 
 Because the OS holds the scheduled notification, there is **no server, no device tokens, and no backend work**. The SDK schedules reminders when the player leaves and cancels them when they return, so a reminder only ever fires if they genuinely stayed away.
 
@@ -60,8 +60,8 @@ ZBDController.Instance.ConfigureReminders(new ZBDReminderConfig
         new ZBDReminderRule
         {
             when = s => s.balance > 0,
-            title = "You have earnings to cash out",
-            body = "You've got {balance} {currency} waiting. Come and cash out.",
+            title = "You have rewards to claim",
+            body = "You've got {balance} {currency} waiting — come and claim them.",
         },
     }
 });

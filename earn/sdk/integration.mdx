@@ -87,9 +87,11 @@ ZBDController.Instance.Init(completion =>
 ```
 
 <Note>
-This will allow the user to start earning, however **in order to withdraw they will need to download the ZBD app, get their ZBD Gamertag and register it with the ZBD Earn SDK**.
+This will allow the user to start earning, however **in order to withdraw they will need a ZBD account linked to your game**.
 
-The easiest way to do this is to present the ZBD modal. If the user has not registered their ZBD Gamertag then they will be guided through it inside the modal.
+The easiest way to do this is to present the ZBD modal. If the player doesn't have an account linked yet, the modal guides them through creating or linking one the first time it opens.
+
+**Timing matters:** present the modal when the player taps their rewards balance or a claim prompt — once there's a balance worth claiming — never at cold launch or before they've earned anything. Registration then reads as delivering a reward the player already owns, not as sign-up. See the [Player Communication Guide](/earn/sdk/player-comms).
 </Note>
 
 ### Handling Maintenance Mode
@@ -133,9 +135,9 @@ The following SDK methods can return the `maintenance` flag:
 ZBDModalController.Instance.ShowModal();
 ```
 
-`ShowModal()` will present a modal prompting the user to enter a ZBD Gamertag, or to sign in if they were not signed in automatically. 
+`ShowModal()` presents the ZBD modal. If the player isn't signed in yet, it starts by guiding them through creating or linking their ZBD account; once signed in, they go straight to their balance.
 
-Users can also **view their balance** and **initiate a withdrawal** from this modal.
+Users can **view their balance** and **initiate a withdrawal** from this modal.
 
 ### Detecting Modal Visibility
 

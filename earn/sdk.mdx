@@ -61,17 +61,20 @@ The withdrawal limit exists to protect against fraud. A player can earn more tha
 Here's what a player sees from first launch through first cashout — the journey you're building toward.
 
 <Steps>
-  <Step title="They see the rewards counter">
-    From their first session, the player sees a balance counter in your game UI alongside your other currencies. It's branded to your game — they have no idea what's powering it. The counter starts at zero.
-  </Step>
   <Step title="They earn their first reward">
-    At a gameplay moment you define (level complete, daily mission chest, milestone hit), a reward notification fires: "You earned 500 coins!" The balance updates. They didn't have to do anything differently — it just happened.
+    At a gameplay moment you define (level complete, daily mission chest, milestone hit), a reward notification fires: "You earned 500 coins!" They didn't have to do anything differently — it just happened. Fire this early in the first session, so the player never sees the rewards counter sitting at zero: discovering a balance that already exists is what makes the feature feel real.
+  </Step>
+  <Step title="They see the rewards counter">
+    The player notices a balance counter in your game UI alongside your other currencies — and there's already something in it. It's branded to your game; they have no idea what's powering it.
+  </Step>
+  <Step title="They see the reveal">
+    Right after the first reward lands, a one-screen [creative](/earn/sdk/creatives) shows the balance they already have, paired with the reason it's real: *"game studios share their ad revenue with players."* The modal's built-in first-time screen doesn't carry that line, so this is where players learn why the rewards aren't a scam. See the [Player Communication Guide](/earn/sdk/player-comms).
   </Step>
   <Step title="They tap the entry point">
-    Curiosity or intent: they tap the counter (or your rewards button). The modal opens instantly — no extra screens. They see their current balance and available cashout options.
+    They tap the counter (or your rewards button). The modal opens instantly — no extra screens. On their very first open, it starts by asking them to create or link their ZBD account (the next step); on every open after that, it goes straight to their balance and payout options.
   </Step>
   <Step title="They link their account">
-    First time only. The player creates a ZBD account — this is where they encounter the ZBD brand, briefly, to complete identity verification for cashout. After linking, the modal goes straight to their balance in future sessions. Your game's branding is front and center throughout; ZBD appears only at this cashout step.
+    First time only. The player creates a ZBD account — this is where they encounter the ZBD brand, briefly, to complete identity verification for cashout. Your game's branding is front and center throughout; ZBD appears only at this cashout step. You can't move this step, but you control when you *prompt* players toward the modal: do it when there's a balance worth claiming, so verification reads as delivering a reward they already own, not as registration.
   </Step>
   <Step title="They cash out">
     They choose a payout method — bank transfer, gift card, Bitcoin, or another available option — and initiate a withdrawal. The modal handles the full flow. They're deep-linked back to your game when done.

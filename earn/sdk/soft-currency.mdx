@@ -19,12 +19,13 @@ This isn't just cosmetic. "You earned 2,500 coins" feels more rewarding than "Yo
 |---------|-----------|----------|
 | Reward notification during gameplay | "You earned 500 coins!" | "You earned $0.05" |
 | Persistent balance display | "Your balance: 12,400 coins" | "Your balance: $1.24" |
-| Onboarding hook | "Earn real money while you play" | "Earn up to $X per day" |
-| Daily limit reached | "You've hit today's limit. Come back tomorrow!" | "Daily withdrawal limit: $0.20" |
-| Withdrawal screen | ZBD modal handles this. Don't build a custom screen. | n/a |
+| First-open reveal (after the first reward) | "You've already earned 500 coins — this game shares its ad revenue with players" | "Earn real money while you play!" / "Earn up to $X per day" |
+| Milestone progress | "Next reward: $5 gift card — 80% there" | "5,000 coins = $1 USD" |
+| Daily limit reached | "You've maxed out today's rewards. Come back tomorrow to earn more." | "Daily withdrawal limit: $0.20" |
+| Claim screen | ZBD modal handles this. Don't build a custom screen. | n/a |
 
 <Note>
-  Never promise specific dollar amounts in your UI copy. "Earn up to $X per day" creates expectations you can't control and may violate app store guidelines. "Earn real money while you play" is accurate and doesn't set a specific expectation.
+  Never promise specific dollar amounts in your UI copy — "Earn up to $X per day" creates expectations you can't control and may violate app store guidelines. And never pitch rewards before the player has any: the first-touch copy should *reveal* a balance they already have, paired with the reason it's real. A concrete dollar milestone ("Next: $5 gift card") is the one place a dollar figure belongs — a running exchange rate never is. See the [Player Communication Guide](/earn/sdk/player-comms).
 </Note>
 
 ## Creating your rewards currency
@@ -64,13 +65,13 @@ ZBDModalController.Instance.ShowModal();
 
 Breaking any of these measurably reduces account linking rates and player engagement.
 
-**1. Entry point goes directly to withdrawal.** Do not add screens between your entry point and the ZBD modal. One extra screen drops account linking rates. The modal is the product. Get players there fast.
+**1. Entry point goes directly to the claim flow.** Do not add screens between your entry point and the ZBD modal. One extra screen drops account linking rates. The modal is the product. Get players there fast.
 
 **2. Balance is always visible.** Home screen, store page, during gameplay. Players who can't see their balance disengage. Treat it the same as your gem or coin counter.
 
-**3. Introduce rewards in session 1.** Don't wait for players to discover the feature on their own. Surface a one-screen introduction before the first reward fires. Players who engage with rewards early retain significantly better.
+**3. Reveal rewards in session 1 — after the first reward lands.** Don't wait for players to discover the feature on their own, but don't pitch it cold either. Fire the first reward early in normal play, then surface a one-screen reveal: the balance they already have, plus the reason ("this game shares its ad revenue with players"). Players who engage with rewards early retain significantly better — and a reveal converts where an offer doesn't. A [creative](/earn/sdk/creatives) is the ideal vehicle.
 
-**4. On init failure, always call `ShowModal()`.** Silent failures destroy trust before any reward is delivered. The modal explains what went wrong and gives the player a retry path. See [Error Handling](/earn/sdk/error-handling).
+**4. Never fail silently on init failure.** For network, VPN, and attestation failures, call `ShowModal()` — the modal explains what went wrong and gives the player a retry path. Maintenance and unsupported region are the exceptions: neither has a retry path, so hide the rewards UI instead (and message only players who already have a balance). See [Error Handling](/earn/sdk/error-handling).
 
 **5. Frame the withdrawal limit as a daily return mechanic.** When a player hits their daily limit, the correct message is "Come back tomorrow to earn more," not "You've reached your limit." The limit resets daily. Frame it as an opportunity, not a cap.
 

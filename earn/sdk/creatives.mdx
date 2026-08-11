@@ -170,46 +170,45 @@ Every one of these is a clean no-op from the player's perspective: nothing rende
 
 ## Best practices
 
-### Show a short tutorial on first launch
+### Reveal rewards after the first reward lands
 
-A one- to three-page tutorial explaining how rewards work is the highest-value creative you can ship. Show it once, at a natural moment after `Init()` succeeds — not mid-gameplay.
+A one- to three-page reveal explaining how rewards work is the highest-value creative you can ship. Show it once — **after the player's first reward has landed**, not at cold launch. A pitch before the player has earned anything is a cold offer and triggers suspicion; a reveal of a balance they already have converts. Fire the first reward early in normal play, let the toast land, then show the creative.
 
-<Frame caption="A three-page onboarding carousel: the reveal, the reason, and where rewards live.">
+<Frame caption="A three-page reveal: what just happened, the reason it's real, and where rewards live.">
   <img src="/img/earn/creatives-tutorial.png" alt="Three tutorial creatives shown over gameplay: 'This game now rewards you with real gift cards and cash', 'No catch — we share a slice of this game's revenue with players', and 'Your points and progress live in your Rewards portal'" />
 </Frame>
 
 Three pages is usually enough to answer the only three questions a new player has:
 
-1. **The reveal** — *this game pays real rewards.*
-2. **The reason** — *here's why, so it doesn't feel like a scam.*
-3. **The portal** — *here's where your progress lives and how you cash out.*
+1. **The reveal** — *this game pays real rewards, and you've already started earning.* (The example art above announces the feature; in your own art, lead with the balance the player already has — "you've already earned 240 coins" converts better than an announcement.)
+2. **The reason** — *here's why, so it doesn't feel like a scam.* This page carries the most important sentence in your rewards copy — *"game studios share their ad revenue with players"* — which the modal's built-in first-time screen doesn't show. The creative is how you ship it. See the [Player Communication Guide](/earn/sdk/player-comms).
+3. **The portal** — *here's where your progress lives and how you claim.*
 
-Use `PlayerPrefs` so it only ever shows once:
+Trigger it from your first-reward moment, with `PlayerPrefs` so it only ever shows once:
 
 ```csharp
-private const string TutorialShownKey = "zbd_tutorial_shown";
+private const string RevealShownKey = "zbd_reveal_shown";
 
-ZBDController.Instance.Init(completion =>
+// Call this from the gameplay moment where the player's first reward lands
+void OnFirstRewardLanded()
 {
-    if (!completion.success) return;
-
     // Already seen it — don't show it again
-    if (PlayerPrefs.GetInt(TutorialShownKey, 0) == 1) return;
+    if (PlayerPrefs.GetInt(RevealShownKey, 0) == 1) return;
 
     ZBDController.Instance.ShowCreative("cr_onboarding_tour", result =>
     {
         // Only record it if it actually displayed, so a failed
-        // image load doesn't suppress the tutorial forever
+        // image load doesn't suppress the reveal forever
         if (!result.shown) return;
 
-        PlayerPrefs.SetInt(TutorialShownKey, 1);
+        PlayerPrefs.SetInt(RevealShownKey, 1);
         PlayerPrefs.Save();
     });
-});
+}
 ```
 
 <Note>
-Set your "already shown" flag inside the callback and only when `result.shown` is `true`. If you set it before calling `ShowCreative`, a network or image failure would permanently prevent the player from ever seeing the tutorial.
+Set your "already shown" flag inside the callback and only when `result.shown` is `true`. If you set it before calling `ShowCreative`, a network or image failure would permanently prevent the player from ever seeing the reveal.
 </Note>
 
 ### Remind players as they make progress
