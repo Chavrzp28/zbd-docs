@@ -5,24 +5,29 @@ description: "Understand how widget user disclosure acceptance works before cash
 
 ## Overview
 
-Some widget flows require the user to accept the latest legal disclosure before continuing. ZBD tracks acceptance by disclosure type and version, so a user may need to accept a new version even if they accepted an older version before.
+Some cashout flows require the user to accept the latest legal disclosure before
+continuing. ZBD tracks acceptance by disclosure type and version, so a user may
+need to accept a new version even if they accepted an older version before.
 
-The widget session exposes outstanding session disclosures, and the cashout backend separately verifies cashout-specific disclosures before a payout is submitted.
+Your application is responsible for presenting the documents and collecting the
+user's acceptance before it creates a widget session. The widget does not render
+Terms of Service, Privacy Policy, or other disclosure documents, and it does not
+record acceptance on the publisher's behalf.
 
 ## End-to-end Flow
 
 ```
 1. Your server creates or resolves the widget user.
-2. Your server creates a widget session.
-3. Your frontend opens the returned widget_url.
-4. The widget loads the user's session status, including outstanding_disclosures.
-5. If a session disclosure is outstanding, the widget asks the user to accept it.
-6. ZBD records the acceptance against the latest disclosure version.
+2. Your server reads `outstanding_disclosures` from the response or calls Get Disclosure Status.
+3. Your application presents each outstanding document to the user outside the widget.
+4. Your server records acceptance with Submit Disclosure Acceptance.
+5. Your server creates a widget session.
+6. Your frontend opens the returned `widget_url`.
 7. The user can continue to bank linking, KYC, and cashout.
 ```
 
 <Info>
-  If your integration only embeds the hosted widget, the disclosure prompt and acceptance flow are handled inside the widget. Your backend still creates users, funds balances, creates sessions, and processes webhooks as usual.
+  Do not open a widget session until the publisher-side disclosure flow is complete. The disclosure APIs require your server-side API key and must not be called from a browser, game client, or WebView.
 </Info>
 
 ## Outstanding Disclosures on User Creation
@@ -31,7 +36,7 @@ You do not need a separate call to discover what a user still owes. The [Create 
 
 `outstanding_disclosures` only lists what is **still outstanding**. When you need the complete picture — including which disclosures a user has **already accepted** and when — use the dedicated endpoints:
 
-- [Get Disclosure Status](/widget/get-disclosure-status) — list every current disclosure type with the user's acceptance state (`is_current`, `accepted_at`), so you can show accepted vs. outstanding.
+- [Get Disclosure Status](/widget/get-disclosure-status) — list every current disclosure type with the user's acceptance state (`tos_current`, `accepted_at`), so you can show accepted vs. outstanding.
 - [Submit Disclosure Acceptance](/widget/submit-disclosure-acceptance) — record acceptance of the latest version from your server.
 
 <Note>
@@ -54,9 +59,13 @@ The widget disclosure endpoints can check and record acceptance for all current 
 
 ## Session Status
 
-During a widget session, ZBD returns outstanding session disclosure information to the widget runtime. The field is named `outstanding_disclosures`.
+During a widget session, ZBD can return outstanding disclosure information as a
+read-only status. The field is named `outstanding_disclosures`. This does not
+cause the widget to display the documents or collect acceptance.
 
-Today this session response includes Terms of Service and Privacy Policy disclosure checks. Cashout-specific checks, such as Electronic Funds Transfer acceptance for ACH, are enforced when the user submits the cashout.
+Terms of Service and Privacy Policy are expected to be accepted before session
+creation. Cashout-specific checks, such as Electronic Funds Transfer acceptance
+for ACH, are enforced when the user submits the cashout.
 
 Example session status shape:
 
@@ -88,11 +97,13 @@ Example session status shape:
 }
 ```
 
-If `outstanding_disclosures` is empty, the user is current on all session disclosures returned by this endpoint.
+If `outstanding_disclosures` is empty, the user is current on all session disclosures returned by this endpoint. If it is not empty, return the user to the publisher-side acceptance flow rather than expecting the widget to collect it.
 
-## Recording Acceptance Outside the Widget
+## Recording acceptance before the widget
 
-Most integrations should let the hosted widget collect the user's acceptance. If your integration collects disclosure acceptance before the widget opens, use the widget disclosure APIs from your server. The API key determines the project context, so these endpoints only require the widget user ID in the path.
+Use the widget disclosure APIs from your server before opening the widget. The
+API key determines the project context, so these endpoints only require the
+widget user ID in the path.
 
 <Warning>
   Disclosure endpoints require your server-side API key. Do not call these endpoints directly from a browser, mobile client, game client, or WebView.

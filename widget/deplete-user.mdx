@@ -6,7 +6,11 @@ api: "POST https://api.zbdpay.com/api/v1/widget/users/deplete"
 
 ## Description
 
-Debit publisher points from a widget user's point balance and return them to the project's configured sink/source account. Amount is in **currency minor units**. For USDZ, `100` equals `$1.00` worth of points.
+Reverse an available fund by debiting publisher points from a widget user's
+point balance and returning them to the project's configured sink/source
+account. This creates a new debit; it does not modify the original fund
+transfer. Amount is in **currency minor units**. For USDZ, `100` equals `$1.00`
+worth of points.
 
 This endpoint is idempotent on `idempotency_key`. The user must already have enough point balance for the debit.
 
