@@ -173,13 +173,13 @@
                       "earn/sdk/user-withdrawal",
                       "earn/sdk/manage-withdrawal-limits"
                     ]
-                  },
-                  "earn/sdk/manage-controls-dashboard"
+                  }
                 ]
               },
               {
                 "group": "Developer Dashboard",
                 "pages": [
+                  "earn/sdk/manage-controls-dashboard",
                   "earn/sdk/manage-user-linking"
                 ]
               },
