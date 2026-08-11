@@ -8,6 +8,8 @@ icon: 'gauge-high'
 
 When the ZBD Earn SDK is active on the client, the device pings the server every 20 seconds. Depending on the reward schedule configured for your app, this automatically increases the player's withdrawal limit every minute by a set amount.
 
+The limit caps what a player can withdraw in a **24-hour window** — it resets daily, and any balance above it carries forward. See [Player Withdrawal Limits](/earn/sdk/user-withdrawal) for reading it from the client.
+
 ## Increase Withdrawal Limit from Server
 
 You may want to increase a user's withdrawal limit by a fixed amount at any time from your server. For example, if you receive a callback from your MMP or an in-app purchase receipt confirming that a user monetized, you can increase their withdrawal limit accordingly.

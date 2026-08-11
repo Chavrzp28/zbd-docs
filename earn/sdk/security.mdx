@@ -19,9 +19,10 @@ If a player's detected country is incorrect — due to a VPN, travel, or a bad I
 
 ## VPN and proxy detection
 
-If a player is detected as using a VPN or proxy during SDK initialization, `Init` returns `false`. This is a fraud signal: VPNs are commonly used to spoof locations and bypass regional restrictions.
+VPN and proxy use is a fraud signal: VPNs are commonly used to spoof locations and bypass regional restrictions. ZBD responds in two different ways, at two different moments — don't confuse them:
 
-When this happens, always call `ShowModal()` — the modal surfaces the reason to the player and gives them a path to retry. Do not silently fail. See [Error Handling](/earn/sdk/error-handling).
+- **Policy: limited earnings mode.** A player detected using a VPN or proxy is placed into **limited earnings mode** — the SDK initializes normally and rewards keep working, but their withdrawal limit grows much more slowly. This is reversible: the modal directs the player to support. See [Fraud Prevention](/earn/sdk/fraud-prevention).
+- **Interference: init failure.** Some VPNs, ad blockers, and private-DNS setups block the network requests device verification depends on. When that happens, `Init` completes with a failure result and the modal shows the player an actionable message (disable the blocker or VPN and retry). Always call `ShowModal()` in this case — do not silently fail. See [Error Handling](/earn/sdk/error-handling).
 
 ## Time Alive
 
