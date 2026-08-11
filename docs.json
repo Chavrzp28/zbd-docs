@@ -133,8 +133,7 @@
                       "earn/sdk/url-scheme",
                       "earn/sdk/attestation-setup"
                     ]
-                  },
-                  "earn/sdk/video-walkthrough"
+                  }
                 ]
               },
               {
@@ -146,7 +145,6 @@
                     "icon": "server",
                     "pages": [
                       "earn/sdk/send-rewards-server",
-                      "earn/sdk/manage-via-dashboard",
                       "earn/sdk/restrict-client-rewards",
                       "earn/sdk/revenue-based-earning",
                       "earn/sdk/send-rewards-api"
@@ -174,16 +172,15 @@
                       "earn/sdk/user-withdrawal",
                       "earn/sdk/manage-withdrawal-limits"
                     ]
-                  },
-                  {
-                    "group": "User Status",
-                    "icon": "circle-user",
-                    "pages": [
-                      "earn/sdk/user-status",
-                      "earn/sdk/manage-user-linking"
-                    ]
-                  },
-                  "earn/sdk/manage-controls-dashboard"
+                  }
+                ]
+              },
+              {
+                "group": "Developer Dashboard",
+                "pages": [
+                  "earn/sdk/manage-via-dashboard",
+                  "earn/sdk/manage-controls-dashboard",
+                  "earn/sdk/manage-user-linking"
                 ]
               },
               {
