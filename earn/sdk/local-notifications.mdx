@@ -17,6 +17,10 @@ Requires Unity SDK v1.1.7 or above.
 
 ## Opting in
 
+<Note>
+**Already have a notification system? Use that instead.** This feature exists to make reminders easier and quicker to ship for games that don't have anything built. If your game already schedules its own notifications, we recommend adding reward reminders there — pull the reward data from [`GetGiftCards`](/earn/sdk/gift-cards) or [`GetBalance`](/earn/sdk/user-balance) — and skipping this feature entirely.
+</Note>
+
 Reminders are **off by default** and stay off until you do both of the following:
 
 1. **Add Unity's Mobile Notifications package** (`com.unity.mobile.notifications`, version 2.3.0 or above) to your project. The SDK does not add it for you.
@@ -91,19 +95,6 @@ Each rule has:
 Rules receive a `ZBDRewardSnapshot` with the player's withdrawable `balance`, the `giftCardName` they're closest to unlocking, their `giftCardPercent` progress toward it (0–100, or -1 when unknown), and `canWithdraw`.
 
 The snapshot is **as of the player's last session, not a live read** — reminders are scheduled while the app is suspending, which is not a safe place for network calls, so the SDK caches this during play: after `Init`, after each reward it sends, and after every withdrawal. You never refresh it yourself.
-
-### Conditions beyond ZBD
-
-`when` is an ordinary predicate, so a rule can be about anything in your game — the ZBD snapshot is offered, not imposed:
-
-```csharp
-new ZBDReminderRule
-{
-    when    = _ => myGame.UnopenedLootboxes > 0,
-    title   = "Your lootboxes are waiting",
-    bodyFor = _ => $"You have {myGame.UnopenedLootboxes} unopened lootboxes.",
-},
-```
 
 ## What the SDK handles for you
 
