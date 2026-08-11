@@ -1,7 +1,7 @@
 ---
 title: 'Soft Currency Model'
 sidebarTitle: 'Displaying Rewards'
-description: 'Show players virtual units, not dollar amounts. This page covers how to display rewards throughout your game and why it matters.'
+description: 'Pair your game-themed currency with its real-money value. This page covers how to display rewards throughout your game and why it matters.'
 icon: 'coins'
 ---
 
@@ -11,16 +11,16 @@ icon: 'coins'
 
 The ZBD Earn SDK is built around a soft-currency model: players accumulate virtual units in your game's own currency (coins, gems, tokens, whatever fits your universe) and convert them to real money only at the point of withdrawal. ZBD handles the conversion.
 
-This isn't just cosmetic. "You earned 2,500 coins" feels more rewarding than "You earned $0.025." Virtual units let you be generous with the numbers while keeping real-world exposure in check.
+Players are ultimately here for real money — that's the point of the product. Your themed currency keeps rewards native to your game's world and lets you be generous with the numbers; the dollar value is what makes them real. Show both: lead with your currency, and pair it with its real-money value — "You earned 2,500 coins (\$0.25)".
 
 ## What to show where
 
 | Context | Show this | Not this |
 |---------|-----------|----------|
-| Reward notification during gameplay | "You earned 500 coins!" | "You earned $0.05" |
-| Persistent balance display | "Your balance: 12,400 coins" | "Your balance: $1.24" |
-| First-open reveal (after the first reward) | "You've already earned 500 coins — this game shares its ad revenue with players" | "Earn real money while you play!" / "Earn up to $X per day" |
-| Milestone progress | "Next reward: \$5 gift card — 80% there" | "5,000 coins = \$1 USD" |
+| Reward notification during gameplay | "You earned 500 coins (\$0.05)!" | Coins with the real-money value hidden |
+| Persistent balance display | "Your balance: 12,400 coins ≈ \$1.24" | Coins alone, no dollar value |
+| First-open reveal (after the first reward) | "You've already earned 500 coins (\$0.05) — this game shares its ad revenue with players" | "Earn real money while you play!" (an offer, not a reveal) |
+| Milestone progress | "Next reward: \$5 gift card — 80% there" | A far-off summit ("Save up for a \$100 payout") |
 | Daily limit reached | "You've maxed out today's rewards. Come back tomorrow to earn more." | "Daily withdrawal limit: $0.20" |
 | Claim screen | ZBD modal handles this. Don't build a custom screen. | n/a |
 

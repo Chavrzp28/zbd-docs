@@ -30,15 +30,13 @@ The modal's built-in first-time screen doesn't carry this line, so ship it yours
 
 **Speak in your game's voice, and keep ZBD invisible until it adds credibility.** The player trusts the game they chose to install; the rewards layer should inherit that trust, not spend it. Your fonts, your art, your currency, your tone. ZBD appears at the payout step, where a real payment processor makes the money credible — never in headers or gameplay copy.
 
-**Use your currency name; dollars only at milestones.** "You earned 2,500 coins" beats "You earned \$0.025" — virtual units keep the reward inside your game's fiction and let you be generous with numbers. Show a dollar value only when it's concrete and flattering: *"Next reward: \$5 gift card — 80% there."* Never show a running exchange rate ("5,000 coins = \$1") — it invites players to compute an hourly wage, and that math never flatters.
+**Pair your currency with its real-money value.** Lead with your themed currency — it keeps rewards native to your game and lets you be generous with the numbers — and show the dollar value alongside it: players are ultimately motivated by real money. "You earned 2,500 coins (\$0.25)" gives them both. Concrete dollar milestones remain your strongest motivator: *"Next reward: \$5 gift card — 80% there."*
 
 **Show progress to the *next* milestone, never a far summit.** A close goal accelerates play; a distant one demotivates. [`GetGiftCards`](/earn/sdk/gift-cards) gives you `unlockedPercent` for exactly this — bind it to a progress bar toward a named, concrete reward.
 
 **Say "claim", not banking verbs, at first touch.** "Claim your reward" feels like winning; "withdraw" and "cash out" feel like banking, and banking feels like risk. Reserve cash-out vocabulary for the payout flow itself. (The modal's built-in CTA currently reads "Cash Out" — that copy is fixed product UI inside the claim flow; the vocabulary *you* control on the way there should say claim.)
 
 **Don't push account linking before there's something worth claiming.** Linking happens inside the modal the first time a player opens it — what you control is *when you send them there*. Prompt the modal when the player has a balance worth claiming, so identity verification reads as *delivering a reward they already own*, not registration. Never gate the value reveal behind sign-up.
-
-**Never promise specific dollar amounts.** "Earn up to $X per day" creates expectations you can't control and may violate app store guidelines.
 
 ## The journey, in five moments
 
@@ -55,7 +53,7 @@ The modal's built-in first-time screen doesn't carry this line, so ship it yours
 | Touchpoint | When | Goal | Sample copy |
 |-----------|------|------|------------|
 | First reward | First reward event, session 1 | Make it feel real, ambiently | "+500 [Currency]" toast — no modal, no interruption |
-| Reveal | Right after the first reward | Pair value with the reason | "You've already earned 500 [Currency]. This game shares its ad revenue with players — the more you play, the more you earn." |
+| Reveal | Right after the first reward | Pair value with the reason | "You've already earned 500 [Currency] (\$0.05). This game shares its ad revenue with players — the more you play, the more you earn." |
 | Progress milestone | Meaningful % toward a reward | Keep the next goal near | "You're 80% of the way to a $5 gift card." |
 | First claim | Balance worth claiming | Convert | "Your first reward is ready to claim." |
 | Withdrawal limit hit | Daily limit reached | Turn a ceiling into retention | "You've maxed out today's rewards. Come back tomorrow to earn more." |
@@ -100,10 +98,10 @@ Avoid full-screen takeovers at launch — a pitch before play is a cold offer. L
 | "Withdraw" / "Cash out" (first touch) | "Claim your reward" | Banking verbs feel like risk; claiming feels like winning |
 | "Sats", "Bitcoin", "wallet", "Lightning" | "Your rewards" | Crypto vocabulary spooks a casual audience — keep it behind the payout-methods door (Bitcoin-native games excepted) |
 | "Sign up to start earning" | "You've already earned [X] [Currency]" | Never gate the value reveal behind effort |
-| "5,000 [Currency] = \$1" | "Next reward: \$5 gift card — 80% there" | Exchange rates invite hourly-wage math; milestones invite completion |
+| A far-off summit ("Save up for a \$100 payout") | "Next reward: \$5 gift card — 80% there" | Near milestones motivate; distant goals demotivate |
 | "Limited time! Act now!" | "New bonus round on your next game" | Urgency reads as manipulation |
 | "ZBD Rewards" as a header | "[Game]'s Reward Vault" (or Loot, Treasury…), "powered by ZBD" small at the payout step | A third-party brand is a context switch |
-| "You earned $0.01" | "You earned 1,200 [Currency]" | Small dollar amounts are an anti-sell |
+| "You earned 1,200 [Currency]" (value hidden) | "You earned 1,200 [Currency] (\$0.12)" | Players are motivated by real money — show the value with the currency |
 | "Rewards unavailable" (player hasn't earned) | Hide rewards UI silently | Nothing to miss, nothing to explain |
 | "ZBD is down" | "Rewards are temporarily unavailable" (players with a balance only) | Never name the platform; never alarm players who haven't started |
 
