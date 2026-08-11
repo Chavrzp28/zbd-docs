@@ -1,162 +1,150 @@
 ---
 title: 'Local Notifications'
 sidebarTitle: 'Local Notifications'
-description: 'Bring players back to keep earning or cash out, using OS-scheduled local notifications — no push infrastructure required.'
+description: 'Bring players back to keep earning or cash out, with SDK-scheduled local reminders — no push infrastructure required.'
 icon: 'bell'
 ---
 
-A player who leaves with an uncashed balance is the easiest player to win back. Local notifications let you remind them — *"you have earnings waiting"*, *"you're 80% of the way to an Amazon card"* — without any push infrastructure.
+A player who leaves with an uncashed balance is the easiest player to win back. Local reminders let you reach them — *"you have earnings waiting"*, *"you're 80% of the way to an Amazon card"* — without any push infrastructure.
 
-Because the OS holds the scheduled notification, there is **no server, no device tokens, and no backend work**. You schedule when the player leaves and cancel when they return, so a reminder only ever fires if they genuinely stayed away.
+Because the OS holds the scheduled notification, there is **no server, no device tokens, and no backend work**. The SDK schedules reminders when the player leaves and cancels them when they return, so a reminder only ever fires if they genuinely stayed away.
 
-<Warning>
-**Local notifications are not an SDK feature — you build them.** The Earn SDK has no notification API. What it gives you is the *data* worth notifying about: the player's balance and their progress toward a gift card. Scheduling, wording, and timing are all your own code.
-</Warning>
-
-## Who provides what
-
-| Piece | Provided by |
-|---|---|
-| Reward data — balance and gift-card progress | **ZBD Earn SDK** — [`GetGiftCards`](/earn/sdk/gift-cards) or [`GetBalance`](/earn/sdk/user-balance) |
-| Scheduling, permissions, and display | **Unity's Mobile Notifications package** (`com.unity.mobile.notifications`) |
-| The reminder controller, cadence, and copy | **You** |
-
-<Info>
-A working reference implementation ships in the ZBD SDK **demo project** as `ZBDDemoNotifications.cs`. It is demo code, not part of the SDK package — copy it into your game as a starting point and adapt it. The rest of this page explains the pattern it implements and the pitfalls it works around, so you can build your own with confidence.
-</Info>
+**You supply the conditions and the copy; the SDK owns the plumbing.** It caches the player's reward state during play, schedules on background, cancels on return, and handles the platform hygiene that makes local notifications fiddly to get right.
 
 <Note>
-The demo project uses Mobile Notifications version `2.4.3`. Add the package to your own project before implementing any of this.
+Reminders ship in the next SDK release after v1.1.7. On earlier versions the SDK has no reminder API.
 </Note>
 
-## The pattern
+## Opting in
 
-Three moments matter:
+Reminders are **off by default** and stay off until you do both of the following:
 
-<Steps>
-<Step title="During play — cache the player's reward state">
-After anything that changes the player's balance — after `Init`, after a reward is credited, after a withdrawal — read their state from the SDK and store it locally (`PlayerPrefs` is enough).
-</Step>
-<Step title="On background — schedule the reminders">
-When the app is backgrounded, build your reminder copy from that cached state and hand the notifications to the OS.
-</Step>
-<Step title="On return — cancel everything pending">
-When the player comes back, cancel all pending reminders. Anything still scheduled is therefore only reaching players who stayed away.
-</Step>
-</Steps>
+1. **Add Unity's Mobile Notifications package** (`com.unity.mobile.notifications`, version 2.3.0 or above) to your project. The SDK does not add it for you.
+2. **Call `ConfigureReminders`** with your rules.
 
-<Warning>
-**You cannot fetch at schedule time.** `OnApplicationPause` is not a safe place for network calls — the app is suspending and the request won't reliably finish. That's why you cache state *during play*, and why your reminder reflects the balance as of the player's last session.
-</Warning>
+If you skip either, nothing happens — no notification channel is registered, no permission is requested, nothing is scheduled, and there are **no build errors**. Without the package, `ConfigureReminders` logs a hint and does nothing. A game using its own notification manager can ignore this feature completely, even with the package installed.
 
-## Reading the reward state
+## Quick start
 
-Call the SDK during play and cache what you need. [`GetGiftCards`](/earn/sdk/gift-cards) is the better choice, because a single call gives you both the balance and how close the player is to a specific card — which makes for a much stronger reminder than a bare number:
+Call once, any time after `Init`:
 
 ```csharp
-// Your own class — the SDK has no notification API
-ZBDController.Instance.GetGiftCards(response =>
+ZBDController.Instance.ConfigureReminders(new ZBDReminderConfig
 {
-    if (response != null && response.success)
-    {
-        ZBDGiftCard best = null;
-        foreach (ZBDGiftCard card in response.giftCards ?? new ZBDGiftCard[0])
-        {
-            // unlockedPercent is -1 when progress couldn't be computed
-            if (card != null && card.unlockedPercent >= 0f &&
-                (best == null || card.unlockedPercent > best.unlockedPercent))
-            {
-                best = card;
-            }
-        }
+    currencyLabel = "coins",                      // whatever your players call it
+    defaultSchedule = new[] { 24f, 72f, 168f },   // hours after they leave: 1 day, 3 days, 1 week
 
-        CacheState(response.availableBalanceInSats, best?.name, best?.unlockedPercent ?? -1f);
-        return;
+    rules = new[]
+    {
+        // Unlocked something concrete — chase sooner, they can claim right now
+        new ZBDReminderRule
+        {
+            when = s => s.giftCardPercent >= 100f,
+            title = "Your gift card is ready",
+            body = "You've unlocked a {card} gift card — come and claim it.",
+            schedule = new[] { 6f, 24f },         // per-rule override of defaultSchedule
+        },
+
+        // A concrete goal beats a bare number
+        new ZBDReminderRule
+        {
+            when = s => s.giftCardPercent >= 50f,
+            title = "Almost there!",
+            body = "You're {percent}% of the way to a {card} gift card.",
+        },
+
+        new ZBDReminderRule
+        {
+            when = s => s.balance > 0,
+            title = "You have earnings to cash out",
+            body = "You've got {balance} {currency} waiting. Come and cash out.",
+        },
     }
-
-    // Gift cards unavailable (rewards UI not loaded yet) —
-    // the balance alone still makes a perfectly good reminder
-    ZBDController.Instance.GetBalance(balance =>
-    {
-        if (balance != null && balance.success)
-        {
-            CacheState(balance.balance, null, -1f);
-        }
-    });
 });
 ```
 
-Where `CacheState` is your own method writing to `PlayerPrefs`. If your game already tracks the player's balance, you can skip the SDK round trip entirely and cache your own value.
+Then ask for permission at a sensible moment (see [Asking for permission](#asking-for-permission)):
 
-Call this from two places: after a successful `Init` where the player is a signed-in rewards user, and again whenever their balance changes — so a reminder never tells a player who has already cashed out that they have earnings waiting.
+```csharp
+ZBDController.Instance.RequestNotificationPermission();
+```
+
+## How rules work
+
+When the player backgrounds the app, the SDK evaluates your rules **in order** against a snapshot of the player's reward state. The **first match wins** and its reminders are scheduled; if **no rule matches, nothing is scheduled**. List the most specific rule first.
+
+<Warning>
+**Always gate your catch-all rule on `s.balance > 0`.** No-match-means-no-reminder is how a player with nothing to come back to stays unbothered — a player who has already cashed out must never be told they have earnings waiting.
+</Warning>
+
+Each rule has:
+
+| Field | What it does |
+|---|---|
+| `when` | A predicate deciding whether the rule applies. Runs as the app suspends, so it must be a cheap in-memory check — no network calls. |
+| `title` / `body` | The notification copy. Both support tokens: `{balance}`, `{currency}`, `{card}`, and `{percent}`, substituted from the snapshot. |
+| `bodyFor` | Optional. Builds the body from arbitrary state when the tokens can't express it. Takes precedence over `body`. |
+| `schedule` | Optional per-rule timings (hours after leaving). Falls back to the config's `defaultSchedule`. |
+
+### The snapshot
+
+Rules receive a `ZBDRewardSnapshot` with the player's withdrawable `balance`, the `giftCardName` they're closest to unlocking, their `giftCardPercent` progress toward it (0–100, or -1 when unknown), and `canWithdraw`.
+
+The snapshot is **as of the player's last session, not a live read** — reminders are scheduled while the app is suspending, which is not a safe place for network calls, so the SDK caches this during play (after `Init` and after every withdrawal). You never refresh it yourself.
+
+### Conditions beyond ZBD
+
+`when` is an ordinary predicate, so a rule can be about anything in your game — the ZBD snapshot is offered, not imposed:
+
+```csharp
+new ZBDReminderRule
+{
+    when    = _ => myGame.UnopenedLootboxes > 0,
+    title   = "Your lootboxes are waiting",
+    bodyFor = _ => $"You have {myGame.UnopenedLootboxes} unopened lootboxes.",
+},
+```
+
+## What the SDK handles for you
+
+- **Scheduling on background, cancelling on return** — using `OnApplicationPause`, which fires reliably on both platforms (unlike `OnApplicationQuit`, which Android frequently skips when killing a backgrounded process).
+- **Only its own notifications.** Cancellation is scoped to reminders the SDK scheduled, tracked by ID and persisted across process kills. Your game's own scheduled notifications are never touched.
+- **The Android notification channel** (required on API 26+), configurable via `androidChannelId` / `androidChannelName` / `androidChannelDescription` on the config.
+- **Platform hygiene** — a 60-second floor (both platforms batch shorter timers), and reminders never show while the player is in the foreground of your game.
+- **Stale-state protection** — pending reminders are cancelled and rebuilt on every background, and the snapshot is re-cached after withdrawals so copy is never built from pre-cashout state.
 
 ## Asking for permission
 
 <Warning>
-**Never ask on a cold launch.** iOS shows the system permission prompt only once — if the player declines, the only way back is the Settings app. A badly timed first ask costs you the channel permanently.
+**Never ask on a cold launch.** iOS shows the system permission prompt only once per install — if the player declines, the only way back is the Settings app. The SDK never requests permission itself; you choose the moment.
 </Warning>
 
-Ask at a moment the request makes sense to the player: after their first reward, or once they're a signed-in rewards user. Guard it so you only ever prompt once per install.
+Call `RequestNotificationPermission()` when the value is obvious to the player — after their first reward, or once they're a signed-in rewards user. It only ever prompts once per install.
 
-On **Android 13 (API 33) and above** the `POST_NOTIFICATIONS` runtime permission is required. Without it nothing is shown and nothing errors — notifications silently never appear.
+On **Android 13 (API 33) and above** the `POST_NOTIFICATIONS` runtime permission is required — without it nothing is shown and nothing errors. The same call handles it.
 
-Android also needs a notification channel registered before anything can be posted (API 26+). Registering an existing channel again is a no-op, so it's safe to do on every launch.
-
-## Scheduling and cancelling
-
-Schedule on **pause**, not on quit:
+## Cancelling programmatically
 
 ```csharp
-private void OnApplicationPause(bool paused)
-{
-    if (paused)
-        ScheduleReminders();   // your method
-    else
-        CancelAllReminders();  // your method
-}
+ZBDController.Instance.CancelReminders();
 ```
 
-<Note>
-Use `OnApplicationPause`, **not** `OnApplicationQuit`. Android frequently kills a backgrounded process without ever calling `Quit`, and iOS calls it rarely — scheduling there means reminders that never get armed. Pause is the reliable "the player left" signal.
-</Note>
-
-Always cancel before rescheduling. A player may background, return, and background again, which leaves the balance behind the old reminders stale.
-
-## Writing your reminder copy
-
-**The messages are yours to write.** The demo tiers its copy by how close the player is to a card, preferring a concrete goal over a bare number — *"80% of the way to an Amazon card"* pulls far harder than a point balance. It's a reasonable model to start from:
-
-| Player state | Example title | Example body |
-|---|---|---|
-| 50–99% toward a specific card | Almost there! | You're 80% of the way to a `{card}` gift card. Keep playing to unlock it. |
-| 100% or more toward a card | Your gift card is ready | You've unlocked a `{card}` gift card — come and claim it. |
-| Has a balance, no card progress | You have earnings to cash out | You've got `{balance}` `{currency}` waiting. Come and cash out. |
-| Balance is zero | — | Nothing is scheduled. |
-
-Use whatever your players call your currency — points, coins, sats — not ZBD's terminology.
-
-<Warning>
-**If the balance is zero, say nothing.** A player who has already cashed out must never be told they have earnings waiting.
-</Warning>
-
-See the [Player Communication Guide](/earn/sdk/player-comms) for wording that stays on the right side of app store and advertising rules.
-
-## Cadence
-
-The demo schedules three reminders at **24, 72, and 168 hours** (1 day, 3 days, 1 week) after the player leaves. Since all pending reminders are cancelled the moment they return, the later entries only ever reach players who stayed away that long.
-
-Pick your own timings. Keep in mind:
-
-- Both platforms batch very short timers, so anything under **60 seconds** is unreliable.
-- On Android, prefer **inexact** delivery — it's fine for a retention nudge and avoids the `SCHEDULE_EXACT_ALARM` permission that Google Play requires justification for.
-- On iOS, set `ShowInForeground = false` — don't interrupt a player who is already in your game with a reminder to come back to it.
+Cancels the SDK's own pending reminders — for example if the player turns reminders off in your settings menu. Your game's notifications are unaffected.
 
 ## Testing
 
 Notifications are **device-only** — they don't fire in the Unity Editor.
 
-To test the flow without waiting a day, do what the demo does and add a debug flag that fires reminders seconds after backgrounding instead of hours. Never ship it enabled.
+To test without waiting a day, set `debugFastReminders = true` on the config: reminders fire about a minute after backgrounding instead of hours (interval tunable via `debugIntervalSeconds`, floored at 60 seconds).
+
+<Warning>
+Never ship with `debugFastReminders` enabled.
+</Warning>
+
+## Reference example
+
+The SDK demo project's `ZBDDemoNotifications.cs` is a complete working example of configuring reminders — rules, permission timing, and the debug flag — and is a good starting point to copy from.
 
 ## Pairing with creatives
 
-Local notifications bring the player back; a [creative modal](/earn/sdk/creatives) tells them what to do next. Showing a *"you're halfway to a gift card"* creative on the session that a reminder brought them back to is a natural pairing — both can be driven from the same `GetGiftCards` progress value.
+Local reminders bring the player back; a [creative modal](/earn/sdk/creatives) tells them what to do next. Showing a *"you're halfway to a gift card"* creative on the session that a reminder brought them back to is a natural pairing — both are driven by the same gift-card progress data.
