@@ -1,0 +1,136 @@
+---
+title: 'Local Notifications'
+sidebarTitle: 'Local Notifications'
+description: 'Bring players back to keep earning or cash out, using OS-scheduled local notifications — no push infrastructure required.'
+icon: 'bell'
+---
+
+A player who leaves with an uncashed balance is the easiest player to win back. Local notifications let you remind them — *"you have earnings waiting"*, *"you're 80% of the way to an Amazon card"* — without any push infrastructure.
+
+Because the OS holds the scheduled notification, there is **no server, no device tokens, and no backend work**. You schedule when the player leaves and cancel when they return, so a reminder only ever fires if they genuinely stayed away.
+
+<Note>
+Requires Unity's **Mobile Notifications** package (`com.unity.mobile.notifications`). The SDK demo project uses version `2.4.3`.
+</Note>
+
+<Info>
+A complete reference implementation ships in the SDK demo project as `ZBDDemoNotifications.cs`. It is **demo code, not part of the SDK** — copy it into your game and adapt the wording, timings, and currency label to fit.
+</Info>
+
+## How it works
+
+Three moments matter:
+
+<Steps>
+<Step title="During play — cache the player's reward state">
+Call `RefreshRewardState()` after anything that changes the player's balance: after `Init`, after a reward is credited, and after a withdrawal. It stores the balance and gift-card progress in `PlayerPrefs`.
+</Step>
+<Step title="On background — schedule the reminders">
+When the app is backgrounded, reminders are built from that cached state and handed to the OS.
+</Step>
+<Step title="On return — cancel everything pending">
+When the player comes back, all pending reminders are cancelled. Anything still scheduled is therefore only reaching players who stayed away.
+</Step>
+</Steps>
+
+<Warning>
+**Scheduling cannot fetch.** `OnApplicationPause` is not a safe place for network calls — the app is suspending and the request won't reliably finish. That's why state is cached *during play* and persisted to `PlayerPrefs`, and why the reminder reflects the balance as of the player's last session.
+</Warning>
+
+## Wiring it up
+
+Two integration points. After a successful `Init` where the player is a signed-in rewards user, cache their state and ask for permission:
+
+```csharp
+ZBDController.Instance.Init(completion =>
+{
+    if (!completion.success) return;
+
+    ZBDDemoNotifications.Instance.RefreshRewardState();
+    ZBDDemoNotifications.Instance.RequestPermission();
+});
+```
+
+And again whenever the balance changes, so a reminder never tells a player who has already cashed out that they have earnings waiting:
+
+```csharp
+// after a reward is credited, or after a withdrawal completes
+ZBDDemoNotifications.Instance.RefreshRewardState();
+```
+
+`RefreshRewardState` uses [`GetGiftCards`](/earn/sdk/gift-cards) because a single call yields both the balance and how close the player is to a specific card — which makes for a much stronger reminder. It falls back to [`GetBalance`](/earn/sdk/user-balance) if the rewards UI hasn't loaded yet.
+
+If your game already tracks the player's balance, you can skip the SDK round trip and cache it directly:
+
+```csharp
+ZBDDemoNotifications.Instance.CacheState(balance, giftCardName, giftCardPercent);
+```
+
+## Asking for permission
+
+<Warning>
+**Never ask on a cold launch.** iOS shows the system permission prompt only once — if the player declines, the only way back is the Settings app. A badly timed first ask costs you the channel permanently.
+</Warning>
+
+Ask at a moment the request makes sense to the player: after their first reward, or once they're a signed-in rewards user. `RequestPermission()` is safe to call repeatedly — it only ever prompts once per install.
+
+On **Android 13 (API 33) and above** the `POST_NOTIFICATIONS` runtime permission is required. Without it nothing is shown and nothing errors — notifications silently never appear.
+
+## Scheduling and cancelling
+
+Schedule on **pause**, not on quit:
+
+```csharp
+private void OnApplicationPause(bool paused)
+{
+    if (paused)
+        ScheduleReminders();
+    else
+        CancelAllReminders();
+}
+```
+
+<Note>
+Use `OnApplicationPause`, **not** `OnApplicationQuit`. Android frequently kills a backgrounded process without ever calling `Quit`, and iOS calls it rarely — scheduling there means reminders that never get armed. Pause is the reliable "the player left" signal.
+</Note>
+
+Always cancel before rescheduling. A player may background, return, and background again, which leaves the balance behind the old reminders stale.
+
+## What the reminder says
+
+The demo picks its copy from the cached state, preferring a concrete goal over a bare number — *"80% of the way to an Amazon card"* pulls far harder than a point balance:
+
+| Player state | Title | Body |
+|---|---|---|
+| 50–99% toward a specific card | Almost there! | You're 80% of the way to a `{card}` gift card. Keep playing to unlock it. |
+| 100% or more toward a card | Your gift card is ready | You've unlocked a `{card}` gift card — come and claim it. |
+| Has a balance, no card progress | You have earnings to cash out | You've got `{balance}` `{currency}` waiting. Come and cash out. |
+| Balance is zero | — | Nothing is scheduled. |
+
+<Warning>
+**If the balance is zero, say nothing.** A player who has already cashed out must never be told they have earnings waiting.
+</Warning>
+
+## Cadence
+
+The demo schedules three reminders at **24, 72, and 168 hours** (1 day, 3 days, 1 week) after the player leaves. Since all pending reminders are cancelled the moment they return, the later entries only ever reach players who stayed away that long.
+
+Tune these to your game. Keep in mind:
+
+- Both platforms batch very short timers, so anything under **60 seconds** is unreliable.
+- On Android the demo uses **inexact** delivery, which is fine for a retention nudge and avoids the `SCHEDULE_EXACT_ALARM` permission that Google Play requires justification for.
+- On iOS the notification sets `ShowInForeground = false` — don't interrupt a player who is already in your game with a reminder to come back to it.
+
+## Testing
+
+Notifications are **device-only** — they don't fire in the Unity Editor.
+
+To test the flow without waiting a day, the demo exposes `debugFastReminders`, which fires reminders seconds after backgrounding instead of hours.
+
+<Warning>
+Never ship with `debugFastReminders` enabled.
+</Warning>
+
+## Pairing with creatives
+
+Local notifications bring the player back; a [creative modal](/earn/sdk/creatives) tells them what to do next. Showing a *"you're halfway to a gift card"* creative on the session that a reminder brought them back to is a natural pairing — both can be driven from the same `GetGiftCards` progress value.

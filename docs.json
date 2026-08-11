@@ -187,9 +187,10 @@
                 ]
               },
               {
-                "group": "Creatives",
+                "group": "Player Engagement",
                 "pages": [
-                  "earn/sdk/creatives"
+                  "earn/sdk/creatives",
+                  "earn/sdk/local-notifications"
                 ]
               },
               {

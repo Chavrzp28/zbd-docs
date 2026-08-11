@@ -174,6 +174,16 @@ Every one of these is a clean no-op from the player's perspective: nothing rende
 
 A one- to three-page tutorial explaining how rewards work is the highest-value creative you can ship. Show it once, at a natural moment after `Init()` succeeds — not mid-gameplay.
 
+<Frame caption="A three-page onboarding carousel: the reveal, the reason, and where rewards live.">
+  <img src="/img/earn/creatives-tutorial.png" alt="Three tutorial creatives shown over gameplay: 'This game now rewards you with real gift cards and cash', 'No catch — we share a slice of this game's revenue with players', and 'Your points and progress live in your Rewards portal'" />
+</Frame>
+
+Three pages is usually enough to answer the only three questions a new player has:
+
+1. **The reveal** — *this game pays real rewards.*
+2. **The reason** — *here's why, so it doesn't feel like a scam.*
+3. **The portal** — *here's where your progress lives and how you cash out.*
+
 Use `PlayerPrefs` so it only ever shows once:
 
 ```csharp
@@ -202,42 +212,86 @@ ZBDController.Instance.Init(completion =>
 Set your "already shown" flag inside the callback and only when `result.shown` is `true`. If you set it before calling `ShowCreative`, a network or image failure would permanently prevent the player from ever seeing the tutorial.
 </Note>
 
-### Nudge players who have an unclaimed balance
+### Remind players as they make progress
 
-A creative that reflects the player's actual progress converts far better than a generic announcement. Call [`GetBalance`](/earn/sdk/user-balance) first, and if the player has something to withdraw, show a creative along the lines of *"You've earned rewards — tap to withdraw."*
+A creative that reflects the player's actual progress converts far better than a generic announcement. Once a player is earning, show reminder creatives at milestones on the way to their first reward.
 
-Ask your account manager to enable **Tap opens rewards** on this creative, so tapping it opens the rewards interface directly.
+<Frame caption="Reminder creatives at three milestones: first reward earned, halfway to a gift card, and ready to claim.">
+  <img src="/img/earn/creatives-reminders.png" alt="Three reminder creatives shown over gameplay: 'You've started earning', 'You're halfway there', and 'Well done — your reward is ready'" />
+</Frame>
+
+Three milestones map naturally onto the player's journey:
+
+1. **Started earning** — their first reward has landed. Reinforce that it's real.
+2. **Halfway** — they're about halfway to a specific gift card. Name the card to make it concrete.
+3. **Ready to claim** — they can redeem now. This is the one that should open the rewards interface.
+
+[`GetGiftCards`](/earn/sdk/gift-cards) tells you exactly where the player is: `unlockedPercent` is a 0–100 progress value toward each card, so you can pick the right creative without doing any conversion yourself.
+
+Ask your account manager to enable **Tap opens rewards** on the "ready to claim" creative, so tapping it opens the rewards interface directly.
 
 ```csharp
-private const string BalanceNudgeKey = "zbd_balance_nudge_shown";
+private const string MilestoneKey = "zbd_reward_milestone";
 
-void MaybeShowBalanceNudge()
+void MaybeShowProgressReminder()
 {
-    // Only nudge once
-    if (PlayerPrefs.GetInt(BalanceNudgeKey, 0) == 1) return;
-
-    ZBDController.Instance.GetBalance(balance =>
+    ZBDController.Instance.GetGiftCards(response =>
     {
-        if (!balance.success || balance.maintenance) return;
+        if (!response.success) return;
+        if (response.giftCards == null || response.giftCards.Length == 0) return;
 
-        // Nothing to withdraw yet — don't nudge
-        if (balance.balance <= 0) return;
+        // The cheapest card is the one the player will reach first
+        ZBDGiftCard target = response.giftCards[0];
+        foreach (ZBDGiftCard card in response.giftCards)
+        {
+            if (card.priceInSats < target.priceInSats) target = card;
+        }
 
-        ZBDController.Instance.ShowCreative("cr_unclaimed_balance", result =>
+        // -1 means progress couldn't be calculated — skip rather than guess
+        if (target.unlockedPercent < 0) return;
+
+        string creativeId = null;
+        int milestone = 0;
+
+        if (target.unlockedPercent >= 100)
+        {
+            creativeId = "cr_ready_to_claim";
+            milestone = 3;
+        }
+        else if (target.unlockedPercent >= 50)
+        {
+            creativeId = "cr_halfway";
+            milestone = 2;
+        }
+        else if (response.availableBalanceInSats > 0)
+        {
+            creativeId = "cr_started_earning";
+            milestone = 1;
+        }
+
+        if (creativeId == null) return;
+
+        // Show each milestone at most once, and never step backwards
+        if (PlayerPrefs.GetInt(MilestoneKey, 0) >= milestone) return;
+
+        ZBDController.Instance.ShowCreative(creativeId, result =>
         {
             if (!result.shown) return;
 
-            PlayerPrefs.SetInt(BalanceNudgeKey, 1);
+            PlayerPrefs.SetInt(MilestoneKey, milestone);
             PlayerPrefs.Save();
-
-            if (result.dismissReason == "cta")
-                Debug.Log("Player tapped through to withdraw");
         });
     });
 }
 ```
 
-If you'd rather nudge periodically than only once, store a timestamp instead of a flag and re-show after a cooldown you're comfortable with.
+Storing a single monotonic milestone number rather than a flag per creative means a player who jumps straight past 50% only sees the milestone they actually reached, and never sees an earlier one afterwards.
+
+If you'd rather remind periodically than only once per milestone, store a timestamp alongside the milestone and re-show after a cooldown you're comfortable with.
+
+### Bring players back with local notifications
+
+Creatives only reach a player who is already in your game. To win back a player who left with an uncashed balance, pair them with [local notifications](/earn/sdk/local-notifications) — OS-scheduled reminders that need no push infrastructure, and can be driven from the same `GetGiftCards` progress value.
 
 ## Styling
 
