@@ -145,7 +145,6 @@
                     "icon": "server",
                     "pages": [
                       "earn/sdk/send-rewards-server",
-                      "earn/sdk/manage-via-dashboard",
                       "earn/sdk/restrict-client-rewards",
                       "earn/sdk/revenue-based-earning",
                       "earn/sdk/send-rewards-api"
@@ -179,6 +178,7 @@
               {
                 "group": "Developer Dashboard",
                 "pages": [
+                  "earn/sdk/manage-via-dashboard",
                   "earn/sdk/manage-controls-dashboard",
                   "earn/sdk/manage-user-linking"
                 ]
