@@ -47,10 +47,10 @@ ZBDController.Instance.ShowCreative("cr_onboarding_tour", result =>
 ## Setting up a creative
 
 <Warning>
-Creatives can't be configured self-serve yet. To set one up, reach out to your account manager — they'll configure it with you and host your artwork.
+Creatives can't be configured self-serve yet. To set one up, reach out to your Customer Success Manager — they'll configure it with you and host your artwork.
 </Warning>
 
-Tell your account manager the following, and send them your images:
+Tell your Customer Success Manager the following, and send them your images:
 
 | What to provide | Notes |
 |---|---|
@@ -159,7 +159,7 @@ Together, `lastPage` and `pageCount` give you a drop-off funnel: you can tell wh
 
 | `error` | Cause |
 |---|---|
-| `Creative not found: '<key>'` | No **active** creative with that key for this app. Check spelling with your account manager, and that your build is pointed at the right environment. |
+| `Creative not found: '<key>'` | No **active** creative with that key for this app. Check spelling with your Customer Success Manager, and that your build is pointed at the right environment. |
 | `A creative is already showing or pending` | One creative at a time. Wait for the previous callback. |
 | `Creative images could not be loaded` | An image failed to download or decode — usually the format or `Content-Type` rules above. |
 | `Creative has no usable image` | The creative has no valid page images configured. |
@@ -227,7 +227,7 @@ Three milestones map naturally onto the player's journey:
 
 [`GetGiftCards`](/earn/sdk/gift-cards) tells you exactly where the player is: `unlockedPercent` is a 0–100 progress value toward each card, so you can pick the right creative without doing any conversion yourself.
 
-Ask your account manager to enable **Tap opens rewards** on the "ready to claim" creative, so tapping it opens the rewards interface directly.
+Ask your Customer Success Manager to enable **Tap opens rewards** on the "ready to claim" creative, so tapping it opens the rewards interface directly.
 
 ```csharp
 private const string MilestoneKey = "zbd_reward_milestone";
@@ -353,7 +353,7 @@ Optional. Refreshes the cached creative list. The SDK already fetches during `In
 
 ## Troubleshooting
 
-**"Creative not found" but it was just set up.** Confirm the creative key spelling with your account manager, check that it's been made active, and make sure your build is pointed at the same environment it was configured in. The **App ID** must match your game's token exactly — it's case-sensitive.
+**"Creative not found" but it was just set up.** Confirm the creative key spelling with your Customer Success Manager, check that it's been made active, and make sure your build is pointed at the same environment it was configured in. The **App ID** must match your game's token exactly — it's case-sensitive.
 
 **The modal doesn't appear and I get "Creative images could not be loaded".** Almost always the image: confirm it's HTTPS, PNG or JPEG, and served with an image `Content-Type` and no `Content-Encoding` header. A browser preview succeeding does not guarantee the device can decode it.
 

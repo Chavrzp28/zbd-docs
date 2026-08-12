@@ -1,7 +1,8 @@
 ---
-title: 'Revenue-Based Earning'
-description: 'Tie a user''s earning potential to the revenue they generate for your app.'
-icon: 'chart-line-up'
+title: 'Withdrawal Limits (Server)'
+sidebarTitle: 'Withdrawal Limits (Server)'
+description: 'How withdrawal limits work, and how to increase them from your server based on the revenue a player generates.'
+icon: 'gauge-high'
 ---
 
 ## Overview
@@ -14,7 +15,7 @@ This keeps your reward economy sustainable: users only withdraw what they've hel
 
 When the ZBD Earn SDK is active on the client, the device pings the server every 20 seconds. Based on the reward schedule configured for your app, the player's withdrawal limit automatically increases every minute by a set amount.
 
-The limit caps what a player can withdraw in a **24-hour window** — it resets daily, and any balance above it carries forward.
+The limit caps what a player can withdraw in a **24-hour window** — it resets daily, and any balance above it carries forward. To read a player's current limit from your game client, see [Player Balance & Limits](/earn/sdk/user-balance); to adjust an individual player's limit by hand, see [Manage Withdrawal Limits](/earn/sdk/manage-withdrawal-limits).
 
 This time-based model works as a rough proxy for revenue — the longer a user is engaged, the more ad impressions and in-app interactions they likely generate, and the more they can withdraw. However, this is a crude estimation. Engagement time doesn't always correlate directly with revenue — a user could be active for a long time without watching ads or making purchases.
 
@@ -32,9 +33,22 @@ The automatic time-based increase covers most cases, but you may want to increas
 - A validated **in-app purchase receipt** confirms the user spent money
 - Any other server-side event where a user directly monetized for you
 
-When you receive one of these events, call the withdrawal limit API to increase the user's limit accordingly:
+When you receive one of these events, call the withdrawal limit API to increase the user's limit accordingly.
 
-Use the `currency` that matches your game's reward model — `POINT` for most games, `MSATS` only if your game is Bitcoin-denominated. See [choosing the right currency](/earn/sdk/withdrawal-limits#choosing-the-right-currency).
+### Choosing the right currency
+
+The `currency` field must match the reward currency your game uses:
+
+| Your game | `currency` |
+|-----------|------------|
+| In-game points / soft currency (most games) | `POINT` |
+| Bitcoin-denominated | `MSATS` |
+
+Most games use `POINT`, so that's the default. Only set `MSATS` if your game is Bitcoin-denominated.
+
+<Note>
+If you're not sure which currency applies to your game, reach out to your ZBD Customer Success Manager to clarify before setting withdrawal limits.
+</Note>
 
 <CodeGroup>
 ```bash Points (default)
@@ -68,7 +82,7 @@ As a starting point, we recommend giving **10-20% of your ad-generated revenue**
 
 Some partners go deeper and set reward amounts per user based on how much that specific user is earning them. As a simpler starting point, you can take the LTV for each country you're live in and give out a percentage based on the player's location.
 
-For more detail on structuring your reward economy, see the [Introduction to Rewarded Play](/earn/knowledge-base/rewarded-play) guide.
+For more detail on structuring your reward economy, see [Reward Economics](/earn/sdk/reward-economics) and the [Introduction to Rewarded Play](/earn/knowledge-base/rewarded-play) guide.
 
 ## Best Practices
 
