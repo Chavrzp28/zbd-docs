@@ -8,7 +8,7 @@ api: "POST https://api.zbdpay.com/api/v1/widget/users/session"
 
 Creates a widget session for a user. Returns a `session_token` (JWT) and a `widget_url` that you embed as an iframe. The session is valid for the duration specified in `expires_at`.
 
-The widget handles OTP email verification, KYC (Onfido), bank linking (Plaid), and cashout initiation internally.
+The widget handles OTP email verification, identity verification (Onfido), bank linking (Plaid), and cashout initiation internally.
 
 Before creating a session, your application must already have presented and
 recorded the user's acceptance of its applicable Terms of Service, Privacy

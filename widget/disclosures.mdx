@@ -11,8 +11,9 @@ need to accept a new version even if they accepted an older version before.
 
 Your application is responsible for presenting the documents and collecting the
 user's acceptance before it creates a widget session. The widget does not render
-Terms of Service, Privacy Policy, or other disclosure documents, and it does not
-record acceptance on the publisher's behalf.
+Terms of Service, Privacy Policy, or other disclosure documents, or record
+acceptance on the publisher's behalf. It validates that the required terms have
+been accepted before the user can access its services.
 
 ## End-to-end Flow
 
@@ -23,7 +24,7 @@ record acceptance on the publisher's behalf.
 4. Your server records acceptance with Submit Disclosure Acceptance.
 5. Your server creates a widget session.
 6. Your frontend opens the returned `widget_url`.
-7. The user can continue to bank linking, KYC, and cashout.
+7. The user can continue to bank linking, identity verification, and cashout.
 ```
 
 <Info>
