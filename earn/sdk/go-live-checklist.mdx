@@ -24,7 +24,8 @@ Before releasing your game to production, make sure you have completed the follo
     Make sure you have thoroughly tested your game before going live. At a minimum, verify the following:
     - **Test init** — confirm the SDK initializes successfully.
     - **Test modal shows** — confirm the ZBD modal appears correctly.
-    - **Test cashout options** — confirm the payout options configured for your app appear in the modal. If ZBD is one of them, confirm account linking completes.
+    - **Test cashout options** — confirm the payout options configured for your app appear in the modal.
+    - **Test linking ZBD** — if ZBD is one of your cashout options, walk through account linking end to end. This is a common source of go-live bugs: linking sends the player out and back again, so a misconfigured [URL scheme](/earn/sdk/url-scheme) or tracking link will leave them stranded instead of returning them to your game. Verify they land back in the game with the account linked.
     - **Test earning** — confirm rewards are sent and received.
     - **Test withdrawal limit increases** — confirm your withdrawal limit increases as you play.
     - **Test withdrawal** — confirm the withdrawal flow completes successfully.
