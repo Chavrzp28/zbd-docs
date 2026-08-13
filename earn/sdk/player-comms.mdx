@@ -7,6 +7,25 @@ icon: 'message-lines'
 
 Getting the integration right technically is half the job. How you introduce and talk about rewards determines whether players engage, claim, build a daily habit, and tell their friends. This page is for game designers and marketing — the people writing copy, designing flows, and sending notifications.
 
+## Start with the right players
+
+<Warning>
+**The single biggest lever on conversion isn't copy — it's acquisition.** Your best results come from running UA aimed at players who *want to earn*. Target them deliberately: rewarded-play audiences, earning-focused creatives and channels, messaging that leads with real rewards.
+
+A player who installed your game with no interest in earning is hard to convert no matter how good the rewards UX is. Nothing on this page will fix a mismatched audience — but everything on it compounds when the audience is right.
+</Warning>
+
+## Recommendations
+
+Four things move the needle most, in this order:
+
+1. **Give the first reward early.** Within the first minutes of normal play, before the player has gone looking for a rewards feature. Discovering a balance that already exists is what makes it feel real — and it means they never see the counter sitting at zero.
+2. **Explain how rewards work.** Players need to know what they've earned and why it's real. Do it in your own game UI, or with a [creative](/earn/sdk/creatives) — a dashboard-configured modal in your art style that you can change without an app release.
+3. **Remind players who have unclaimed earnings.** A balance sitting unclaimed is your easiest win-back. Reach them with [local notifications](/earn/sdk/local-notifications) or your own push stack while they're away, and with a [creative](/earn/sdk/creatives) when they return.
+4. **Show progress toward the next reward.** A near, named goal ("80% of the way to a \$5 gift card") converts where an abstract balance doesn't. [`GetGiftCards`](/earn/sdk/gift-cards) gives you the progress value.
+
+The rest of this page is the detail behind these: the principle they all follow, then what to say at each moment.
+
 ## The one principle: reveal, don't offer
 
 Players installed your game to play, not to earn. A rewards pitch they haven't earned anything from yet is a cold offer — and cold offers trigger suspicion, not desire. An unexplained reward reads as a hidden cost: *what's the catch?*

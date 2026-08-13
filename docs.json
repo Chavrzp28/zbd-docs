@@ -163,8 +163,8 @@
               {
                 "group": "Best Practices & Engagement",
                 "pages": [
-                  "earn/sdk/best-practices",
                   "earn/sdk/player-comms",
+                  "earn/sdk/best-practices",
                   "earn/sdk/creatives",
                   "earn/sdk/local-notifications"
                 ]
