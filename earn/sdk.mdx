@@ -39,6 +39,18 @@ You control when rewards fire and how much players can earn. ZBD handles account
   </Card>
 </CardGroup>
 
+## What makes it work
+
+Before anything else, know what a successful integration depends on. **Three things have to be true for rewards to convert — miss any one and the other two can't save it:**
+
+1. You're **acquiring players who want to earn**. A player with no interest in earning is hard to convert however good the rewards UX is.
+2. Your **UI/UX shows and explains** how rewards work and how to claim them — native game elements first, plus creatives and notifications.
+3. You're **rewarding enough** to be worth coming back for. Nobody changes their behavior for a few cents; size rewards off actual revenue.
+
+<Card title="The three requirements, in detail" icon="bullseye" href="/earn/sdk/player-comms#what-makes-rewards-convert">
+  What to do for each one, and the pages that implement them. Read this before you design your rewards UX.
+</Card>
+
 ## How it works
 
 Players accumulate a **rewards balance** at triggers you define. The balance is denominated in your chosen reward currency: virtual units in in-game currency mode, or satoshis in Bitcoin mode. When players are ready to cash out, they tap the rewards entry point in your game, pick how they want to be paid, and withdraw. ZBD handles the rest.
