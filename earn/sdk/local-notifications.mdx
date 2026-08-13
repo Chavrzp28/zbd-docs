@@ -1,11 +1,11 @@
 ---
 title: 'Local Notifications'
 sidebarTitle: 'Local Notifications'
-description: 'Bring players back to keep earning or cash out, with SDK-scheduled local reminders — no push infrastructure required.'
+description: 'Bring players back to keep earning or claim their rewards, with SDK-scheduled local reminders — no push infrastructure required.'
 icon: 'bell'
 ---
 
-A player who leaves with an uncashed balance is the easiest player to win back. Local reminders let you reach them — *"you have earnings waiting"*, *"you're 80% of the way to an Amazon card"* — without any push infrastructure.
+A player who leaves with an unclaimed balance is the easiest player to win back. Local reminders let you reach them — *"you have rewards to claim"*, *"you're 80% of the way to an Amazon card"* — without any push infrastructure.
 
 Because the OS holds the scheduled notification, there is **no server, no device tokens, and no backend work**. The SDK schedules reminders when the player leaves and cancels them when they return, so a reminder only ever fires if they genuinely stayed away.
 
@@ -30,7 +30,11 @@ If you skip either, nothing happens — no notification channel is registered, n
 
 ## Quick start
 
-Call once, any time after `Init`:
+Call once, any time after `Init`. Your rules depend on which cashout options your game offers — gift cards have a minimum to reach, while Cash App and ZBD don't, so the milestones differ:
+
+<Tabs>
+<Tab title="Gift cards">
+Gift cards have a fixed price, so `giftCardPercent` gives you a concrete goal to aim the player at — the strongest motivator you have.
 
 ```csharp
 ZBDController.Instance.ConfigureReminders(new ZBDReminderConfig
@@ -60,12 +64,88 @@ ZBDController.Instance.ConfigureReminders(new ZBDReminderConfig
         new ZBDReminderRule
         {
             when = s => s.balance > 0,
-            title = "You have earnings to cash out",
-            body = "You've got {balance} {currency} waiting. Come and cash out.",
+            title = "You have rewards to claim",
+            body = "You've got {balance} {currency} waiting — come and claim them.",
         },
     }
 });
 ```
+</Tab>
+
+<Tab title="Cash App">
+Cash App has **no minimum cashout**, so there's no gift-card goal to progress toward. Use a balance threshold instead: we recommend around **\$1 worth** before you tell a player they can cash out — enough to feel worth claiming.
+
+```csharp
+// $1 worth of your currency. At the recommended $0.0001 per unit that's
+// 10,000 units — set this from your own exchange rate.
+const int CashoutThreshold = 10000;
+
+ZBDController.Instance.ConfigureReminders(new ZBDReminderConfig
+{
+    currencyLabel = "coins",
+    defaultSchedule = new[] { 24f, 72f, 168f },
+
+    rules = new[]
+    {
+        // Enough to be worth cashing out — chase sooner
+        new ZBDReminderRule
+        {
+            when = s => s.balance >= CashoutThreshold,
+            title = "You can cash out",
+            body = "You've earned {balance} {currency} — cash out to Cash App.",
+            schedule = new[] { 6f, 24f },
+        },
+
+        // Earning, but not there yet — reinforce that it's real
+        new ZBDReminderRule
+        {
+            when = s => s.balance > 0,
+            title = "You're earning",
+            body = "You've got {balance} {currency} so far. Keep playing to cash out.",
+        },
+    }
+});
+```
+</Tab>
+
+<Tab title="ZBD">
+ZBD cashout has **no minimum**, so the same two-step model as Cash App applies: tell the player they're earning, then tell them once there's enough to be worth claiming (**\$1 worth** is a good threshold).
+
+```csharp
+// $1 worth of your currency. At the recommended $0.0001 per unit that's
+// 10,000 units — set this from your own exchange rate.
+const int CashoutThreshold = 10000;
+
+ZBDController.Instance.ConfigureReminders(new ZBDReminderConfig
+{
+    currencyLabel = "coins",
+    defaultSchedule = new[] { 24f, 72f, 168f },
+
+    rules = new[]
+    {
+        new ZBDReminderRule
+        {
+            when = s => s.balance >= CashoutThreshold,
+            title = "You can cash out",
+            body = "You've earned {balance} {currency} — come and claim it.",
+            schedule = new[] { 6f, 24f },
+        },
+
+        new ZBDReminderRule
+        {
+            when = s => s.balance > 0,
+            title = "You're earning",
+            body = "You've got {balance} {currency} so far. Keep playing to cash out.",
+        },
+    }
+});
+```
+</Tab>
+</Tabs>
+
+<Note>
+Offering several cashout options? Combine the rules in one config — put the gift-card rules first (a named card is the stronger pull) and let the balance-threshold rules catch everyone else. First match wins, so order them most specific to least.
+</Note>
 
 Then ask for permission at a sensible moment (see [Asking for permission](#asking-for-permission)):
 
@@ -78,7 +158,7 @@ ZBDController.Instance.RequestNotificationPermission();
 When the player backgrounds the app, the SDK evaluates your rules **in order** against a snapshot of the player's reward state. The **first match wins** and its reminders are scheduled; if **no rule matches, nothing is scheduled**. List the most specific rule first.
 
 <Warning>
-**Always gate your catch-all rule on `s.balance > 0`.** No-match-means-no-reminder is how a player with nothing to come back to stays unbothered — a player who has already cashed out must never be told they have earnings waiting.
+**Never tell a player who has nothing waiting that rewards are waiting for them.** Gate any "you have rewards to claim" rule on `s.balance > 0` — no-match-means-no-reminder is how a player who already cashed out stays unbothered. The one exception is a deliberate win-back rule that *invites* a lapsed player to earn again rather than claiming they have earnings; see [Winning back lapsed players](#winning-back-lapsed-players).
 </Warning>
 
 Each rule has:
@@ -95,6 +175,50 @@ Each rule has:
 Rules receive a `ZBDRewardSnapshot` with the player's withdrawable `balance`, the `giftCardName` they're closest to unlocking, their `giftCardPercent` progress toward it (0–100, or -1 when unknown), and `canWithdraw`.
 
 The snapshot is **as of the player's last session, not a live read** — reminders are scheduled while the app is suspending, which is not a safe place for network calls, so the SDK caches this during play: after `Init`, after each reward it sends, and after every withdrawal. You never refresh it yourself.
+
+## Winning back lapsed players
+
+Because the SDK cancels every pending reminder the moment a player returns, **a long-dated schedule entry can only ever reach someone who genuinely stayed away that long**. That's the mechanism for lapsed-player win-back: extend the schedule rather than trying to detect absence yourself.
+
+```csharp
+ZBDController.Instance.ConfigureReminders(new ZBDReminderConfig
+{
+    currencyLabel = "coins",
+    // 1 day, 3 days, 1 week, 2 weeks, 30 days — the last two only ever
+    // reach players who never came back
+    defaultSchedule = new[] { 24f, 72f, 168f, 336f, 720f },
+
+    rules = new[]
+    {
+        // Has something waiting: name the payouts, not just the balance
+        new ZBDReminderRule
+        {
+            when = s => s.balance > 0,
+            title = "Your rewards are waiting",
+            body = "You've got {balance} {currency} to claim — cash out to a gift card, Cash App and more.",
+        },
+
+        // Cashed out and drifted away: nothing waiting, so invite them to earn again
+        new ZBDReminderRule
+        {
+            when = s => s.balance == 0,
+            title = "Come back and earn",
+            body = "Keep playing to earn real rewards — gift cards, Cash App and more.",
+            schedule = new[] { 336f, 720f },   // lapsed-only: don't nag a fresh player
+        },
+    }
+});
+```
+
+<Warning>
+**One rule sends one message, repeated at each of its schedule entries.** The title and body are built once from the matching rule, so a reminder at 30 days says exactly what the reminder at 1 day said. Write copy that reads well at any distance — *"your rewards are waiting"* works at both; *"you just earned!"* does not.
+
+If you need genuinely different copy at day 1 versus week 4, use your own notification system and schedule the messages yourself.
+</Warning>
+
+<Note>
+The zero-balance rule above is the **one** case where a reminder to a player with nothing waiting is appropriate — because it invites them to earn rather than claiming they have earnings. Keep that distinction: never tell a player who cashed out that rewards are waiting for them. Give it a lapsed-only schedule so a player who simply hasn't earned yet in their first session isn't nagged the next day.
+</Note>
 
 ## What the SDK handles for you
 

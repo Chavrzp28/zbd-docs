@@ -34,7 +34,7 @@ You have two options for how rewards reach players.
 
 Call `SendReward` directly from the Unity client. No backend required. This is the fastest way to get started.
 
-The tradeoff: reward delivery is visible and potentially exploitable on the client. ZBD's withdrawal limit system acts as the primary fraud layer. A player who abuses client-side sends can earn an unlimited balance, but they can only withdraw up to their daily limit.
+The tradeoff: reward delivery is visible and potentially exploitable on the client. ZBD's withdrawal limit system acts as the primary fraud layer. A player who abuses client-side sends can earn an unlimited balance, but they can only withdraw up to their current limit, which grows slowly.
 
 Use client-side delivery if you're in early development or your reward amounts are low enough that client-side exposure is acceptable.
 
@@ -48,11 +48,17 @@ Server-side delivery is required if you want to:
 - Issue rewards based on IAP receipts or MMP revenue events
 - Eliminate client-side abuse entirely
 
+<Note>
+  Server-side calls authenticate with an Earn API key, which you create in the developer dashboard under **Projects → your project → Earn → Controls**. See [Manage via Dashboard](/earn/sdk/manage-via-dashboard).
+
+  Use the key from the **Earn** tab — it starts with `sdk_live_`. The key in the **API** tab is for the ZBD Payments API and will not work for Earn endpoints.
+</Note>
+
 ```bash
 curl --request POST \
   --url https://api.zbdpay.com/api/v1/rewards/user/<rewardsUserId>/send \
   --header 'Content-Type: application/json' \
-  --header 'x-api-key: <YOUR_API_KEY>' \
+  --header 'x-api-key: <x-api-key>' \
   --data '{
     "amount": 1000,
     "currency": "POINT"
@@ -66,7 +72,7 @@ See [Send Rewards (Server)](/earn/sdk/send-rewards-server) for the full setup gu
 Every player has two values:
 
 1. **Rewards balance**: what they've earned and not yet withdrawn. You add to this with `SendReward`.
-2. **Withdrawal limit**: the maximum they can withdraw in a 24-hour window.
+2. **Withdrawal limit**: how much of that balance they can withdraw right now. It grows as they play, up to a capped daily allowance that resets every 24 hours.
 
 The withdrawal limit accrues automatically from the SDK's time-alive signal (a ping every ~20 seconds while the app is open). The accrual rate is set per country tier. A Tier 1 country (US, UK, DE) accrues faster than a Tier 2 country.
 
@@ -78,7 +84,7 @@ You can increase a player's withdrawal limit at any time from your backend, for 
 curl --request POST \
   --url https://api.zbdpay.com/api/v1/rewards/user/<rewardsUserId>/withdrawal-limit \
   --header 'Content-Type: application/json' \
-  --header 'x-api-key: <YOUR_API_KEY>' \
+  --header 'x-api-key: <x-api-key>' \
   --data '{
     "amount": 5000,
     "currency": "POINT"
@@ -95,8 +101,8 @@ Before sending a reward, check the player's current state to avoid over-rewardin
 
 ```bash
 curl --request GET \
-  --url https://api.zbdpay.com/api/v1/rewards/users/<rewardsUserId>/balance \
-  --header 'x-api-key: <YOUR_API_KEY>'
+  --url https://api.zbdpay.com/api/v2/rewards/users/<rewardsUserId>/balance \
+  --header 'x-api-key: <x-api-key>'
 ```
 
 ```json

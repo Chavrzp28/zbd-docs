@@ -30,7 +30,7 @@ You should have received your `App ID` from your ZBD Customer Success Manager. Y
   <img src="/img/earn/init-sdk.png" alt="Initialize SDK" />
 </Frame>
 
-If you have not been given an App ID, reach out to your account manager.
+If you have not been given an App ID, reach out to your Customer Success Manager.
 
 # Initialize the SDK
 
@@ -87,9 +87,9 @@ ZBDController.Instance.Init(completion =>
 ```
 
 <Note>
-This will allow the user to start earning, however **in order to withdraw they will need to download the ZBD app, get their ZBD Gamertag and register it with the ZBD Earn SDK**.
+This will allow the user to start earning. To withdraw, they open the ZBD modal, where they see their balance and the cashout options configured for your app — gift cards, Cash App, ZBD, and others depending on their region. A linked ZBD account is only needed if they choose to cash out **to ZBD**; the other options don't require one.
 
-The easiest way to do this is to present the ZBD modal. If the user has not registered their ZBD Gamertag then they will be guided through it inside the modal.
+**Timing matters:** present the modal when the player taps their rewards balance or a claim prompt — once there's a balance worth claiming — never at cold launch or before they've earned anything. See the [Player Communication Guide](/earn/sdk/player-comms).
 </Note>
 
 ### Handling Maintenance Mode
@@ -133,9 +133,9 @@ The following SDK methods can return the `maintenance` flag:
 ZBDModalController.Instance.ShowModal();
 ```
 
-`ShowModal()` will present a modal prompting the user to enter a ZBD Gamertag, or to sign in if they were not signed in automatically. 
+`ShowModal()` presents the ZBD modal, showing the player their balance and the cashout options configured for your app.
 
-Users can also **view their balance** and **initiate a withdrawal** from this modal.
+Users can **view their balance** and **initiate a withdrawal** from this modal. Cashing out to ZBD requires a linked ZBD account, and the modal guides the player through that if they pick it; other payout options don't need one.
 
 ### Detecting Modal Visibility
 

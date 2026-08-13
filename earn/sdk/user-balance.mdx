@@ -1,11 +1,13 @@
 ---
-title: 'Player Balance'
-sidebarTitle: 'Player Balance'
-description: 'Retrieve a player''s current rewards balance from your game client using the SDK.'
+title: 'Player Balance & Limits'
+sidebarTitle: 'Player Balance & Limits'
+description: 'Retrieve a player''s rewards balance and current withdrawal limit from your game client using the SDK.'
 icon: 'wallet'
 ---
 
-Use `GetBalance` to retrieve a player's current rewards balance and withdrawal limit from your game client.
+Use `GetBalance` to retrieve a player's current rewards balance and withdrawal limit from your game client — both come back in a single call.
+
+A player's withdrawal limit is how much of their balance they can withdraw right now. It grows automatically as they play, on the reward schedule configured for your app, and you can raise it from your server based on revenue events — see [Withdrawal Limits (Server)](/earn/sdk/revenue-based-earning).
 
 ```csharp
 ZBDController.Instance.GetBalance(callback =>
@@ -29,7 +31,9 @@ ZBDController.Instance.GetBalance(callback =>
 });
 ```
 
-`GetBalance` returns both values in a single call — the player's accumulated rewards balance and their current daily withdrawal limit. Use this before sending rewards to avoid crediting more than the player can currently withdraw.
+Use this before sending rewards to avoid crediting more than the player can currently withdraw.
+
+If a player's rewards balance exceeds their withdrawal limit, the excess carries forward — they can access it as the limit grows through continued play or a server-side increase. How much the limit can grow in a day is capped, and that daily allowance resets every 24 hours. See [Reward Economics](/earn/sdk/reward-economics) for guidance on configuring withdrawal limits.
 
 <Note>
   The `maintenance` flag can return `true` at any point, including mid-session. When active, do not update the displayed balance. See [Error Handling](/earn/sdk/error-handling) for full maintenance mode guidance.

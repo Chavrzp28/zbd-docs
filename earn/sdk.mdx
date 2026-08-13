@@ -39,18 +39,32 @@ You control when rewards fire and how much players can earn. ZBD handles account
   </Card>
 </CardGroup>
 
+## What makes it work
+
+Before anything else, know what a successful integration depends on. **Three things drive conversion — if one is missing, your rewards may underperform:**
+
+1. Your **UI/UX shows and explains** how rewards work and how to claim them — native game elements first, plus creatives and notifications.
+2. You're **rewarding enough** to be worth coming back for. Nobody changes their behavior for a few cents; size rewards off actual revenue.
+3. You **know your audience**. Acquiring players who want to earn — or who'd be interested in earning — improves conversion rates.
+
+<Card title="The three requirements, in detail" icon="bullseye" href="/earn/sdk/player-comms#what-makes-rewards-convert">
+  What to do for each one, and the pages that implement them. Read this before you design your rewards UX.
+</Card>
+
 ## How it works
 
-Players accumulate a **rewards balance** at triggers you define. The balance is denominated in your chosen reward currency: virtual units in in-game currency mode, or satoshis in Bitcoin mode. When players are ready to cash out, they tap the rewards entry point in your game, link their account, and withdraw. ZBD handles the rest.
+Players accumulate a **rewards balance** at triggers you define. The balance is denominated in your chosen reward currency: virtual units in in-game currency mode, or satoshis in Bitcoin mode. When players are ready to cash out, they tap the rewards entry point in your game, pick how they want to be paid, and withdraw. ZBD handles the rest.
 
 Two values govern every player's rewards state:
 
 | Value | What it is |
 |-------|-----------|
 | **Rewards balance** | The total amount the player has earned and not yet withdrawn. You add to this by calling `SendReward`. |
-| **Withdrawal limit** | The maximum the player can withdraw in a 24-hour window. This accrues automatically based on time played, and can be set or increased from your server. |
+| **Withdrawal limit** | How much of that balance the player can withdraw right now. It grows automatically as they play, on the reward schedule configured for your app, and you can also raise it from your server at any time. |
 
-The withdrawal limit exists to protect against fraud. A player can earn more than their daily limit; the excess stays in their balance and becomes withdrawable as the limit resets or is raised.
+The withdrawal limit exists mainly to protect against fraud, but it's also a retention mechanic: how much the limit can grow in a day is capped, and that daily allowance resets every 24 hours — so players come back tomorrow to unlock more of what they've earned.
+
+A player can earn faster than their limit grows. The excess stays in their balance and becomes withdrawable as the limit rises, either through continued play or a server-side increase.
 
 <Info>
   You set the reward amounts and configure the withdrawal limits. ZBD enforces those limits on the player side. This separation means you can be generous with rewards without taking on uncapped financial exposure.
@@ -61,23 +75,25 @@ The withdrawal limit exists to protect against fraud. A player can earn more tha
 Here's what a player sees from first launch through first cashout — the journey you're building toward.
 
 <Steps>
-  <Step title="They see the rewards counter">
-    From their first session, the player sees a balance counter in your game UI alongside your other currencies. It's branded to your game — they have no idea what's powering it. The counter starts at zero.
-  </Step>
   <Step title="They earn their first reward">
-    At a gameplay moment you define (level complete, daily mission chest, milestone hit), a reward notification fires: "You earned 500 coins!" The balance updates. They didn't have to do anything differently — it just happened.
+    At a gameplay moment you define (level complete, daily mission chest, milestone hit), a reward notification fires: "You earned 500 coins (\$0.05)!" They didn't have to do anything differently — it just happened. Fire this early in the first session, so the player never sees the rewards counter sitting at zero: discovering a balance that already exists is what makes the feature feel real.
+  </Step>
+  <Step title="They see the rewards counter">
+    The player notices a balance counter in your game UI alongside your other currencies — and there's already something in it. It's branded to your game; they have no idea what's powering it.
+  </Step>
+  <Step title="They see the reveal">
+    Right after the first reward lands, a one-screen [creative](/earn/sdk/creatives) shows the balance they already have, paired with the reason it's real: *"game studios share their ad revenue with players."* The modal's built-in first-time screen doesn't carry that line, so this is where players learn why the rewards aren't a scam. See the [Player Communication Guide](/earn/sdk/player-comms).
   </Step>
   <Step title="They tap the entry point">
-    Curiosity or intent: they tap the counter (or your rewards button). The modal opens instantly — no extra screens. They see their current balance and available cashout options.
-  </Step>
-  <Step title="They link their account">
-    First time only. The player creates a ZBD account — this is where they encounter the ZBD brand, briefly, to complete identity verification for cashout. After linking, the modal goes straight to their balance in future sessions. Your game's branding is front and center throughout; ZBD appears only at this cashout step.
+    They tap the counter (or your rewards button). The modal opens instantly — no extra screens — showing their balance and the cashout options you've configured with your Customer Success Manager: gift cards, Cash App, ZBD, and others depending on their region.
   </Step>
   <Step title="They cash out">
-    They choose a payout method — bank transfer, gift card, Bitcoin, or another available option — and initiate a withdrawal. The modal handles the full flow. They're deep-linked back to your game when done.
+    They pick a payout option and withdraw. The modal handles the full flow, and they're deep-linked back to your game when it's done.
+
+    Most options need nothing more than that. Cashing out **to ZBD** is the one that requires the player to have a linked ZBD account — worth knowing because ZBD runs partner incentive programmes for studios whose players cash out to ZBD, so you may want to promote it as an option. It's never a requirement for withdrawing.
   </Step>
   <Step title="They come back tomorrow">
-    The withdrawal limit resets daily. Any balance above the limit carries forward. The habit loop is set: play, earn, come back.
+    Their withdrawal limit doesn't reset — what resets is how much more of it they can unlock. Each day brings a fresh allowance, so any balance they couldn't withdraw yet becomes withdrawable as they keep playing. The habit loop is set: play, earn, come back.
   </Step>
 </Steps>
 

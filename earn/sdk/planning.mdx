@@ -20,15 +20,15 @@ The first decision is which currency you reward players in. This is set at the p
   </Card>
 </CardGroup>
 
-Both modes use the same SDK methods (`SendReward`, `GetBalance`, `ShowModal`). The difference is the `currency` field in API calls and the payout options available to players.
+Both modes use the same SDK methods (`SendReward`, `GetBalance`, `ShowModal`). The difference is the payout options available to players and — if you deliver rewards **server-side** — the `currency` field in your API calls. Client-side integrations never set a currency; the mode configured for your app determines it.
 
 | | In-game currency | Bitcoin |
 |---|---|---|
 | Reward unit | Virtual units you define | Millisatoshis (MSATS) |
 | Balance display | "12,400 coins" | "12,400 sats" (UI in sats; API unit is MSATS) |
-| Player payout options | Bank transfer (ACH), gift cards, Cash App, Speed Wallet, Bitcoin | Bitcoin via Lightning only |
+| Player payout options | Bank transfer (ACH), gift cards, Cash App, Speed Wallet, ZBD | Gift cards, Cash App, Speed Wallet, Bitcoin |
 | Audience fit | Mainstream mobile, casual | Bitcoin-native, crypto-native |
-| `currency` field | `POINT` | `MSATS` |
+| `currency` field (server-side API calls) | `POINT` | `MSATS` |
 
 <Info>
   The rest of the Earn SDK documentation uses in-game currency as the default. Where behavior differs for Bitcoin rewards, it is called out explicitly.
@@ -61,7 +61,7 @@ Available methods depend on the player's region and your reward currency:
 - Gift cards
 - Cash App
 - Speed Wallet
-- Bitcoin via Lightning (ZBD App, Speed Wallet, or other Lightning-compatible options)
+- ZBD
 
 <Info>
   ZBD is available in 40+ countries. Check the [coverage page](/earn/coverage) to confirm your target regions are supported before integrating.
