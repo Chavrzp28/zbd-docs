@@ -30,7 +30,11 @@ If you skip either, nothing happens — no notification channel is registered, n
 
 ## Quick start
 
-Call once, any time after `Init`:
+Call once, any time after `Init`. Your rules depend on which cashout options your game offers — gift cards have a minimum to reach, while Cash App and ZBD don't, so the milestones differ:
+
+<Tabs>
+<Tab title="Gift cards">
+Gift cards have a fixed price, so `giftCardPercent` gives you a concrete goal to aim the player at — the strongest motivator you have.
 
 ```csharp
 ZBDController.Instance.ConfigureReminders(new ZBDReminderConfig
@@ -66,6 +70,82 @@ ZBDController.Instance.ConfigureReminders(new ZBDReminderConfig
     }
 });
 ```
+</Tab>
+
+<Tab title="Cash App">
+Cash App has **no minimum cashout**, so there's no gift-card goal to progress toward. Use a balance threshold instead: we recommend around **\$1 worth** before you tell a player they can cash out — enough to feel worth claiming.
+
+```csharp
+// $1 worth of your currency. At the recommended $0.0001 per unit that's
+// 10,000 units — set this from your own exchange rate.
+const int CashoutThreshold = 10000;
+
+ZBDController.Instance.ConfigureReminders(new ZBDReminderConfig
+{
+    currencyLabel = "coins",
+    defaultSchedule = new[] { 24f, 72f, 168f },
+
+    rules = new[]
+    {
+        // Enough to be worth cashing out — chase sooner
+        new ZBDReminderRule
+        {
+            when = s => s.balance >= CashoutThreshold,
+            title = "You can cash out",
+            body = "You've earned {balance} {currency} — cash out to Cash App.",
+            schedule = new[] { 6f, 24f },
+        },
+
+        // Earning, but not there yet — reinforce that it's real
+        new ZBDReminderRule
+        {
+            when = s => s.balance > 0,
+            title = "You're earning",
+            body = "You've got {balance} {currency} so far. Keep playing to cash out.",
+        },
+    }
+});
+```
+</Tab>
+
+<Tab title="ZBD">
+ZBD cashout has **no minimum**, so the same two-step model as Cash App applies: tell the player they're earning, then tell them once there's enough to be worth claiming (**\$1 worth** is a good threshold).
+
+```csharp
+// $1 worth of your currency. At the recommended $0.0001 per unit that's
+// 10,000 units — set this from your own exchange rate.
+const int CashoutThreshold = 10000;
+
+ZBDController.Instance.ConfigureReminders(new ZBDReminderConfig
+{
+    currencyLabel = "coins",
+    defaultSchedule = new[] { 24f, 72f, 168f },
+
+    rules = new[]
+    {
+        new ZBDReminderRule
+        {
+            when = s => s.balance >= CashoutThreshold,
+            title = "You can cash out",
+            body = "You've earned {balance} {currency} — come and claim it.",
+            schedule = new[] { 6f, 24f },
+        },
+
+        new ZBDReminderRule
+        {
+            when = s => s.balance > 0,
+            title = "You're earning",
+            body = "You've got {balance} {currency} so far. Keep playing to cash out.",
+        },
+    }
+});
+```
+</Tab>
+</Tabs>
+
+<Note>
+Offering several cashout options? Combine the rules in one config — put the gift-card rules first (a named card is the stronger pull) and let the balance-threshold rules catch everyone else. First match wins, so order them most specific to least.
+</Note>
 
 Then ask for permission at a sensible moment (see [Asking for permission](#asking-for-permission)):
 
