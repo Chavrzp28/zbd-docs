@@ -36,6 +36,6 @@ This pattern keeps the balance/limit relationship healthy and avoids the frustra
 
 Call `ZBDController.Instance.Init` as early as possible — ideally on game launch. Keep the instance alive with a singleton or `DontDestroyOnLoad` so it persists across scenes.
 
-`Init` reports its result on the `completion` object. Handle each outcome distinctly — never fail silently. In short: **maintenance** and **unsupported region** have no retry path (hide the rewards UI, message only players with a balance); everything else (network, VPN/proxy, attestation) gets `ShowModal()` so the player can see why and retry.
+`Init` reports its result on the `completion` object. Handle each outcome distinctly — never fail silently. Note that **a failed init means the modal is unavailable**: `ShowModal()` has nothing to display until `Init` succeeds, so the player-facing message is yours to show, based on the failure reason. For **maintenance** and **unsupported region**, hide the rewards UI instead (message only players who already have a balance).
 
 [Error Handling](/earn/sdk/error-handling) is the canonical reference — it has the full init handler code, every failure cause, and the complete scenario matrix.

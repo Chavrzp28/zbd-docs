@@ -113,9 +113,7 @@
                 "pages": [
                   "earn/sdk/reward-economics",
                   "earn/sdk/soft-currency",
-                  "earn/sdk/best-practices",
                   "earn/sdk/security",
-                  "earn/sdk/player-comms",
                   "earn/sdk/customization"
                 ]
               },
@@ -163,8 +161,10 @@
                 ]
               },
               {
-                "group": "Player Engagement",
+                "group": "Best Practices & Engagement",
                 "pages": [
+                  "earn/sdk/best-practices",
+                  "earn/sdk/player-comms",
                   "earn/sdk/creatives",
                   "earn/sdk/local-notifications"
                 ]
@@ -200,19 +200,6 @@
                       "earn/sdk/delete-blocklist-entry"
                     ]
                   }
-                ]
-              }
-            ]
-          },
-          {
-            "anchor": "ZBD App",
-            "icon": "apple",
-            "pages": [
-              {
-                "group": "Resources",
-                "pages": [
-                  "earn/app",
-                  "earn/app/uri-schemes"
                 ]
               }
             ]

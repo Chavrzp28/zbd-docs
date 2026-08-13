@@ -9,7 +9,7 @@ The SDK surfaces three types of failure: initialization failures, reward deliver
 
 ## Initialization failures
 
-`Init` can fail for several reasons. For network, VPN/proxy, and attestation failures, call `ShowModal()` — it explains the reason to the player and provides a retry path. **Maintenance** and **unsupported region** are handled differently (see below), because neither has a retry path. Never silently fail.
+`Init` can fail for several reasons, and **when it fails the modal cannot be shown** — the rewards web app never loaded, so `ShowModal()` has nothing to display. That means the player-facing messaging is yours: read the failure reason off the `completion` object and surface your own message (or hide the rewards UI). Never fail silently, and never leave the player staring at a rewards button that does nothing.
 
 ```csharp
 ZBDController.Instance.Init(completion =>
@@ -31,8 +31,9 @@ ZBDController.Instance.Init(completion =>
     }
     else
     {
-        // Network, VPN, or attestation failure — show modal so the player can see why and retry
-        ZBDModalController.Instance.ShowModal();
+        // Init failed — the modal is unavailable, so show your own message
+        // based on completion.error and let gameplay continue as normal.
+        ShowRewardsUnavailableMessage(completion.error);
         Debug.LogWarning("ZBD init failed: " + completion.error);
     }
 });
@@ -42,15 +43,19 @@ ZBDController.Instance.Init(completion =>
 
 | Cause | What happens | What to do |
 |-------|-------------|------------|
-| VPN / ad blocker / private DNS blocking device verification | `completion.success = false` | Call `ShowModal()`. The modal shows an actionable message (disable the blocker or VPN and retry). Note: VPN *policy* detection does not fail init — it places the player in limited earnings mode instead. See [Security & Fraud Prevention](/earn/sdk/security). |
-| No network connection | `completion.success = false` | Call `ShowModal()`. The modal surfaces a retry option. Do not prevent gameplay. |
-| Unsupported region | `completion.success = false`, `completion.type = "region"` | Do **not** call `ShowModal()` — there is no retry path. Hide all Earn-related UI and functionality, or show a message that Earn isn't available in their region. See [Global Support](/earn/coverage). |
-| Attestation failure | `completion.success = false` | Call `ShowModal()`. Indicates a potentially modified device or app. |
+| VPN / ad blocker / private DNS blocking device verification | `completion.success = false` | Show your own actionable message — ask the player to disable the blocker or VPN and try again. Note: VPN *policy* detection does not fail init — it places the player in limited earnings mode instead. See [Security & Fraud Prevention](/earn/sdk/security). |
+| No network connection | `completion.success = false` | Show your own message with a retry affordance, and retry `Init` when connectivity returns. Do not prevent gameplay. |
+| Unsupported region | `completion.success = false`, `completion.type = "region"` | No retry path. Hide all Earn-related UI and functionality, or show a message that Earn isn't available in their region. See [Global Support](/earn/coverage). |
+| Attestation failure | `completion.success = false` | Show your own message. Indicates a potentially modified device or app — keep the wording generic rather than accusatory. |
 | ZBD maintenance | `completion.maintenance = true` | See [Maintenance Mode](#maintenance-mode) below. |
 
 <Warning>
   Do not tie SDK initialization to any core gameplay logic. If `Init` fails, the game must continue working normally. Players who cannot earn rewards should not be blocked from playing.
 </Warning>
+
+<Note>
+  `ShowModal()` is only useful once `Init` has succeeded. After a failed init the rewards web app isn't loaded, so calling it does nothing — which is why every init-failure row above puts the message in your hands.
+</Note>
 
 ## Maintenance mode
 
@@ -110,11 +115,11 @@ ZBDController.Instance.SendReward(amount, completion =>
 
 | Scenario | SDK response | Correct behavior |
 |----------|-------------|-----------------|
-| Init — VPN/ad-blocker interference | `success = false` | `ShowModal()`. Game continues. |
-| Init — no network | `success = false` | `ShowModal()`. Game continues. |
-| Init — unsupported region | `success = false`, `type = "region"` | Hide rewards UI (or show "not available in your region"). No `ShowModal()` — no retry path. |
+| Init — VPN/ad-blocker interference | `success = false` | Your own message asking them to disable it and retry. Game continues. |
+| Init — no network | `success = false` | Your own message; retry when connectivity returns. Game continues. |
+| Init — unsupported region | `success = false`, `type = "region"` | Hide rewards UI (or show "not available in your region"). No retry path. |
 | Init — maintenance | `maintenance = true` | Hide rewards UI for new players. Message existing earners. |
-| Init — attestation failure | `success = false` | `ShowModal()`. Game continues. |
+| Init — attestation failure | `success = false` | Your own generic message. Game continues. |
 | App backgrounded mid-reward | n/a | Handle gracefully on foreground return. Do not retry automatically. |
 | No internet during reward trigger | `success = false` | Skip or queue the reward. Do not crash. |
 | `SendReward` — maintenance | `maintenance = true` | Silently skip. No player-facing message. |

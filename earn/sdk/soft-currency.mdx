@@ -6,7 +6,7 @@ icon: 'coins'
 ---
 
 <Note>
-  This page covers the **in-game currency (Points)** reward model. If you are rewarding players in Bitcoin (sats), the balance display and UX rules are similar — you show sats rather than virtual units, and players cash out to a Lightning wallet (ZBD App, Speed Wallet, or other compatible options). The critical UX rules and IAP compliance guidance on this page apply regardless of reward currency.
+  This page covers the **in-game currency (Points)** reward model. If you are rewarding players in Bitcoin (sats), the balance display and UX rules are similar — you show sats rather than virtual units, and the payout options differ (gift cards, Cash App, Speed Wallet, Bitcoin). The critical UX rules and IAP compliance guidance on this page apply regardless of reward currency. See [Before You Build](/earn/sdk/planning#payout-options) for the full comparison.
 </Note>
 
 The ZBD Earn SDK is built around a soft-currency model: players accumulate virtual units in your game's own currency (coins, gems, tokens, whatever fits your universe) and convert them to real money only at the point of withdrawal. ZBD handles the conversion.
@@ -67,7 +67,7 @@ Breaking any of these measurably reduces cashout rates and player engagement.
 
 **3. Reveal rewards in session 1 — after the first reward lands.** Don't wait for players to discover the feature on their own, but don't pitch it cold either. Fire the first reward early in normal play, then surface a one-screen reveal: the balance they already have, plus the reason ("this game shares its ad revenue with players"). Players who engage with rewards early retain significantly better — and a reveal converts where an offer doesn't. A [creative](/earn/sdk/creatives) is the ideal vehicle.
 
-**4. Never fail silently on init failure.** For network, VPN, and attestation failures, call `ShowModal()` — the modal explains what went wrong and gives the player a retry path. Maintenance and unsupported region are the exceptions: neither has a retry path, so hide the rewards UI instead (and message only players who already have a balance). See [Error Handling](/earn/sdk/error-handling).
+**4. Never fail silently on init failure.** If `Init` fails the modal can't be shown — it has nothing loaded to display — so handle the failure yourself: read the reason off the `completion` object and either show your own message (network, VPN/ad-blocker, attestation) or hide the rewards UI entirely (maintenance, unsupported region). A rewards button that does nothing destroys trust before any reward is delivered. See [Error Handling](/earn/sdk/error-handling).
 
 **5. Frame the withdrawal limit as a daily return mechanic.** When a player has withdrawn everything their limit currently allows, the correct message is "Come back tomorrow to earn more," not "You've reached your limit." Their daily allowance for unlocking more resets every 24 hours. Frame it as an opportunity, not a cap.
 

@@ -48,11 +48,17 @@ Server-side delivery is required if you want to:
 - Issue rewards based on IAP receipts or MMP revenue events
 - Eliminate client-side abuse entirely
 
+<Note>
+  Server-side calls authenticate with an Earn API key, which you create in the developer dashboard under **Projects → your project → Earn → Controls**. See [Manage via Dashboard](/earn/sdk/manage-via-dashboard).
+
+  Use the key from the **Earn** tab — it starts with `sdk_live_`. The key in the **API** tab is for the ZBD Payments API and will not work for Earn endpoints.
+</Note>
+
 ```bash
 curl --request POST \
   --url https://api.zbdpay.com/api/v1/rewards/user/<rewardsUserId>/send \
   --header 'Content-Type: application/json' \
-  --header 'x-api-key: <YOUR_API_KEY>' \
+  --header 'x-api-key: <x-api-key>' \
   --data '{
     "amount": 1000,
     "currency": "POINT"
@@ -78,7 +84,7 @@ You can increase a player's withdrawal limit at any time from your backend, for 
 curl --request POST \
   --url https://api.zbdpay.com/api/v1/rewards/user/<rewardsUserId>/withdrawal-limit \
   --header 'Content-Type: application/json' \
-  --header 'x-api-key: <YOUR_API_KEY>' \
+  --header 'x-api-key: <x-api-key>' \
   --data '{
     "amount": 5000,
     "currency": "POINT"
@@ -95,8 +101,8 @@ Before sending a reward, check the player's current state to avoid over-rewardin
 
 ```bash
 curl --request GET \
-  --url https://api.zbdpay.com/api/v1/rewards/users/<rewardsUserId>/balance \
-  --header 'x-api-key: <YOUR_API_KEY>'
+  --url https://api.zbdpay.com/api/v2/rewards/users/<rewardsUserId>/balance \
+  --header 'x-api-key: <x-api-key>'
 ```
 
 ```json
