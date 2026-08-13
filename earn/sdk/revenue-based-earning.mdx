@@ -15,7 +15,9 @@ This keeps your reward economy sustainable: users only withdraw what they've hel
 
 When the ZBD Earn SDK is active on the client, the device pings the server every 20 seconds. Based on the reward schedule configured for your app, the player's withdrawal limit automatically increases every minute by a set amount.
 
-The limit caps what a player can withdraw in a **24-hour window** — it resets daily, and any balance above it carries forward. To read a player's current limit from your game client, see [Player Balance & Limits](/earn/sdk/user-balance); to adjust an individual player's limit by hand, see [Manage Withdrawal Limits](/earn/sdk/manage-withdrawal-limits).
+The limit itself doesn't reset — it's the amount the player can withdraw right now, and it carries over. What resets every 24 hours is **how much more limit they can accrue**: the daily allowance is capped, which is what brings players back tomorrow. Any balance above the current limit stays in their balance until the limit rises.
+
+To read a player's current limit from your game client, see [Player Balance & Limits](/earn/sdk/user-balance); to adjust an individual player's limit by hand, see [Manage Withdrawal Limits](/earn/sdk/manage-withdrawal-limits).
 
 This time-based model works as a rough proxy for revenue — the longer a user is engaged, the more ad impressions and in-app interactions they likely generate, and the more they can withdraw. However, this is a crude estimation. Engagement time doesn't always correlate directly with revenue — a user could be active for a long time without watching ads or making purchases.
 

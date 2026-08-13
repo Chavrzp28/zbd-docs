@@ -59,9 +59,9 @@ ZBDModalController.Instance.ShowModal();
 
 ## Critical UX rules
 
-Breaking any of these measurably reduces account linking rates and player engagement.
+Breaking any of these measurably reduces cashout rates and player engagement.
 
-**1. Entry point goes directly to the claim flow.** Do not add screens between your entry point and the ZBD modal. One extra screen drops account linking rates. The modal is the product. Get players there fast.
+**1. Entry point goes directly to the claim flow.** Do not add screens between your entry point and the ZBD modal. One extra screen drops cashout rates. The modal is the product. Get players there fast.
 
 **2. Balance is always visible.** Home screen, store page, during gameplay. Players who can't see their balance disengage. Treat it the same as your gem or coin counter.
 
@@ -69,7 +69,7 @@ Breaking any of these measurably reduces account linking rates and player engage
 
 **4. Never fail silently on init failure.** For network, VPN, and attestation failures, call `ShowModal()` — the modal explains what went wrong and gives the player a retry path. Maintenance and unsupported region are the exceptions: neither has a retry path, so hide the rewards UI instead (and message only players who already have a balance). See [Error Handling](/earn/sdk/error-handling).
 
-**5. Frame the withdrawal limit as a daily return mechanic.** When a player hits their daily limit, the correct message is "Come back tomorrow to earn more," not "You've reached your limit." The limit resets daily. Frame it as an opportunity, not a cap.
+**5. Frame the withdrawal limit as a daily return mechanic.** When a player has withdrawn everything their limit currently allows, the correct message is "Come back tomorrow to earn more," not "You've reached your limit." Their daily allowance for unlocking more resets every 24 hours. Frame it as an opportunity, not a cap.
 
 ## Reward moment design
 

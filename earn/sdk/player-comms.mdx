@@ -36,7 +36,7 @@ The modal's built-in first-time screen doesn't carry this line, so ship it yours
 
 **Say "claim", not banking verbs, at first touch.** "Claim your reward" feels like winning; "withdraw" and "cash out" feel like banking, and banking feels like risk. Reserve cash-out vocabulary for the payout flow itself. (The modal's built-in CTA currently reads "Cash Out" — that copy is fixed product UI inside the claim flow; the vocabulary *you* control on the way there should say claim.)
 
-**Don't push account linking before there's something worth claiming.** Linking happens inside the modal the first time a player opens it — what you control is *when you send them there*. Prompt the modal when the player has a balance worth claiming, so identity verification reads as *delivering a reward they already own*, not registration. Never gate the value reveal behind sign-up.
+**Send players to the modal when there's something worth claiming.** The modal opens on their balance and cashout options, so it lands best once there's a balance worth acting on — a player sent there with nothing to claim just sees an empty wallet. Never gate the value reveal behind sign-up: players don't need any account to see what they've earned.
 
 ## The journey, in five moments
 
@@ -45,8 +45,8 @@ The modal's built-in first-time screen doesn't carry this line, so ship it yours
 | **Earn** | "+40 coins" as ambient feedback while playing — noticed, not interrupting. Tie triggers to high-emotion gameplay moments. | Your game UI + `SendReward` |
 | **Reveal** | One screen, after the first reward has landed: the balance they already have, the reason line, one CTA ("Keep playing"). | A [creative](/earn/sdk/creatives) |
 | **Progress** | Balance always visible; progress bar toward the next named reward. | Your game UI + [`GetGiftCards`](/earn/sdk/gift-cards) |
-| **Claim** | Player taps through with a balance worth claiming; links their account as part of delivery; celebrates like a level-up, not a receipt. | The ZBD modal (`ShowModal`) |
-| **Return** | Milestone reminders while away; the daily limit reset framed as tomorrow's opportunity. | [Local notifications](/earn/sdk/local-notifications) + creatives |
+| **Claim** | Player taps through with a balance worth claiming, picks a payout option, and celebrates like a level-up, not a receipt. | The ZBD modal (`ShowModal`) |
+| **Return** | Milestone reminders while away; tomorrow's fresh earning allowance framed as an opportunity. | [Local notifications](/earn/sdk/local-notifications) + creatives |
 
 ## Communication touchpoints
 
@@ -56,14 +56,14 @@ The modal's built-in first-time screen doesn't carry this line, so ship it yours
 | Reveal | Right after the first reward | Pair value with the reason | "You've already earned 500 [Currency] (\$0.05). This game shares its ad revenue with players — the more you play, the more you earn." |
 | Progress milestone | Meaningful % toward a reward | Keep the next goal near | "You're 80% of the way to a $5 gift card." |
 | First claim | Balance worth claiming | Convert | "Your first reward is ready to claim." |
-| Withdrawal limit hit | Daily limit reached | Turn a ceiling into retention | "You've maxed out today's rewards. Come back tomorrow to earn more." |
+| Limit reached | Player has withdrawn all their limit currently allows | Turn a ceiling into retention | "You've maxed out today's rewards. Come back tomorrow to earn more." |
 | Re-engagement | Lapsed player (3+ days) | Re-activation | "Your [X] [Currency] are still waiting — come and claim them." |
 
 ## Withdrawal limit messaging
 
-The daily limit is your most powerful retention mechanic — use it that way.
+The daily earning allowance is your most powerful retention mechanic — use it that way.
 
-When a player hits their limit, the message is: **"Come back tomorrow to earn more."** Not "You've reached your limit." Not "Withdrawal limit: $0.20." The limit isn't a ceiling, it's a daily reset. Frame it as tomorrow's opportunity, not today's restriction.
+When a player has withdrawn everything their limit currently allows, the message is: **"Come back tomorrow to earn more."** Not "You've reached your limit." Not "Withdrawal limit: \$0.20." Their allowance to unlock more resets every 24 hours — frame that as tomorrow's opportunity, not today's restriction.
 
 ## Push notifications
 
@@ -74,7 +74,7 @@ Same copy model as [local notifications](/earn/sdk/local-notifications) — conc
 | Unclaimed rewards | "You've got [X] [Currency] waiting — come and claim them." |
 | Near a milestone | "You're [X]% of the way to a [card] gift card. Keep playing to unlock it." |
 | Reward ready | "You've unlocked a [card] gift card — come and claim it." |
-| Withdrawal limit reset | "Your reward limit has reset. Time to earn more." |
+| New day, fresh allowance | "You can earn more rewards today. Time to play." |
 | Day 7 streak milestone | "7-day streak! A special reward is in your daily chest." |
 
 No urgency theater ("Limited time! Act now!") — urgency reads as manipulation to someone who didn't come to shop.
