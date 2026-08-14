@@ -35,7 +35,7 @@ If you have not been given an App ID, reach out to your Customer Success Manager
 # Initialize the SDK
 
 <Note>
-You can optionally pass a `userId` during initialization — this is your own internal identifier for the user. It's used for various analytics and user linking features, but it is not essential.
+Pass a `userId` during initialization — your own internal identifier for the player. The SDK works without it, but it's the key that joins your players to ZBD, so it's required for analytics, user linking, and for raising withdrawal limits from MMP revenue data. See [Increasing Limits with MMP Data](/earn/sdk/mmp-postbacks). If you can't supply it at `Init`, set it later with `SetUserId`.
 </Note>
 <Warning>
   Please reach out to your ZBD Customer Success Manager if you face any issues.
