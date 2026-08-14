@@ -5,7 +5,36 @@ description: 'Make sure you have completed these steps before going live with th
 icon: 'clipboard-check'
 ---
 
-Before releasing your game to production, make sure you have completed the following:
+Before releasing your game to production, work through both lists below. The first decides whether your rewards will actually convert; the second decides whether the integration works.
+
+## Conversion readiness
+
+An integration can be technically perfect and still underperform. These are the [three things that drive conversion](/earn/sdk/player-comms#what-makes-rewards-convert) — check all three off before you ship.
+
+<Steps>
+  <Step title="Your UI/UX shows and explains how rewards work">
+    Players won't claim what they don't understand. Confirm you have:
+    - **A persistent balance counter** in your own game UI, visible alongside your other currencies — not hidden behind a menu.
+    - **A reward toast** at the moment of earning, and **progress toward a near, named reward** ([`GetGiftCards`](/earn/sdk/gift-cards) gives you the percentage).
+    - **The first reward firing early**, within the first minutes of play, so players never see the counter at zero.
+    - **The reason line** — *"game studios share their ad revenue with players"* — shown somewhere, since the modal's first-time screen doesn't carry it. A [creative](/earn/sdk/creatives) is the usual vehicle.
+    - **A way to reach players who leave with an unclaimed balance**: [local notifications](/earn/sdk/local-notifications) or your own push stack.
+
+    See the [Player Communication Guide](/earn/sdk/player-comms).
+  </Step>
+  <Step title="You're rewarding enough to be worth coming back for">
+    Nobody changes their behavior for a few cents. Confirm:
+    - You've sized rewards off **actual revenue** rather than a flat guess — 10–20% of ad-generated revenue is the usual starting range. See [Reward Economics](/earn/sdk/reward-economics).
+    - You have a route to raise withdrawal limits from real monetization signals. Connecting your MMP is the highest-leverage version, and there are options that need no backend — see [Increasing Limits with MMP Data](/earn/sdk/mmp-postbacks).
+    - You're passing your **internal player ID** at `Init`, which every MMP-driven option depends on.
+    - Monetization events raise the **withdrawal limit**, never the rewards balance directly — crediting balance for watching an ad is cash-for-task and risks app store review.
+  </Step>
+  <Step title="You know your audience">
+    Acquisition shapes the ceiling on everything else. Confirm your UA is aimed at players who want to earn — or would be interested in earning — rather than assuming a general audience will convert on rewards.
+  </Step>
+</Steps>
+
+## Technical readiness
 
 <Steps>
   <Step title="Set up attestation">
