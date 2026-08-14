@@ -107,7 +107,31 @@ It's the least responsive option, since limits move on your upload schedule rath
 
 ## Sizing rewards to available headroom
 
-Once limits track revenue, you can check a player's state before issuing a reward and scale it to what they can actually withdraw:
+Once limits track revenue, you can check a player's state before issuing a reward and scale it to what they can actually withdraw. Read it wherever you send rewards from:
+
+<Tabs>
+<Tab title="From your game (client)">
+Most games send rewards client-side, so check the player's state with `GetBalance` in Unity:
+
+```csharp
+ZBDController.Instance.GetBalance(callback =>
+{
+    if (!callback.success) return;
+
+    long balance = callback.balance;                 // what they've earned
+    long headroom = callback.withdrawalLimit;        // what they can withdraw right now
+
+    // Size the reward to the headroom available
+    int reward = headroom > balance ? largeReward : smallReward;
+    ZBDController.Instance.SendReward(reward, result => { /* ... */ });
+});
+```
+
+See [Player Balance & Limits](/earn/sdk/user-balance) for the full call, including maintenance handling.
+</Tab>
+
+<Tab title="From your server">
+If you deliver rewards server-side, read the same two values from the API before issuing one:
 
 ```bash
 curl --request GET \
@@ -127,6 +151,12 @@ curl --request GET \
 }
 ```
 
-That tells you two things: `rewardsBalance` is what the player currently has, and `withdrawableLimit` is what they're allowed to cash out. Players with more headroom can be given larger rewards, because you know the revenue is there to back them.
+<Note>
+The field names differ between the two: the client returns `balance` and `withdrawalLimit`, the API returns `rewardsBalance` and `withdrawableLimit`. Same two values.
+</Note>
+</Tab>
+</Tabs>
+
+Either way you learn two things: what the player currently has, and what they're allowed to cash out. Players with more headroom can be given larger rewards, because you know the revenue is there to back them.
 
 Keeping the two roughly aligned matters — a player who can see a large balance they can't withdraw disengages. See [Best Practices](/earn/sdk/best-practices).
