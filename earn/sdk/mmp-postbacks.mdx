@@ -28,15 +28,44 @@ Use the monetization event to raise the **withdrawal limit** — the ceiling —
 
 This keeps your reward economy backed by real revenue while keeping the player-facing earning experience tied to play, not ads.
 
-## Prerequisite: set your own player ID
+## Prerequisite: link the two IDs
 
-Every approach below joins an MMP event to a ZBD player, and the join key is **your own internal player identifier**. Pass it when you initialize the SDK, or set it later with `SetUserId`:
+Every approach below joins an MMP event to a ZBD player, so the two systems have to know about each other's identifiers. Do it in **both directions** — it's cheap, and it means the mapping works whichever ID ends up on the postback.
+
+### 1. Give ZBD your player ID
+
+Pass your own internal player identifier when you initialize the SDK, or set it later with `SetUserId`:
 
 ```csharp
 ZBDController.Instance.Init(userId, completion => { /* ... */ });
 ```
 
-Without it there's nothing to match your MMP's user against, and none of the options below will work. See [Integration](/earn/sdk/integration#initialize-the-sdk).
+See [Integration](/earn/sdk/integration#initialize-the-sdk).
+
+### 2. Give your MMP the ZBD player ID
+
+Read the ZBD-side identifier with `Utils.GetUserId()` and set it on your MMP's SDK as a customer/user identifier or custom property, so it comes back on their postbacks:
+
+```csharp
+using ZBD;
+
+// After Init has succeeded — the ID isn't available before the player is registered
+string zbdUserId = Utils.GetUserId();
+
+if (!string.IsNullOrEmpty(zbdUserId))
+{
+    // Set it on your MMP's SDK — the exact call depends on the MMP.
+    // AppsFlyer, Adjust and Singular each expose a customer user ID
+    // and/or custom-data field for exactly this purpose.
+    MyMmp.SetCustomerUserId(zbdUserId);
+}
+```
+
+<Note>
+`Utils.GetUserId()` returns an empty string until the SDK has registered the player, so call it after `Init` succeeds rather than at startup. Check the exact field name against your MMP's own documentation — the concept is the same everywhere, but the method isn't.
+</Note>
+
+Without at least one of these links there's nothing to match an MMP event against, and none of the options below will work.
 
 ## Choose your integration
 
