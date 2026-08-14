@@ -37,6 +37,10 @@ The automatic time-based increase covers most cases, but you may want to increas
 
 When you receive one of these events, call the withdrawal limit API to increase the user's limit accordingly.
 
+<Note>
+Wiring this to your MMP is the highest-leverage version of this — and there are options that don't need a backend at all. See [Increasing Limits with MMP Data](/earn/sdk/mmp-postbacks).
+</Note>
+
 ### Choosing the right currency
 
 The `currency` field must match the reward currency your game uses:
@@ -91,4 +95,5 @@ For more detail on structuring your reward economy, see [Reward Economics](/earn
 - **Keep earn rate aligned with withdrawal capacity.** Avoid situations where users earn significantly more than they can withdraw — this leads to frustration. For example, crediting 1,000 sats but only allowing 100 sats to be withdrawn is a poor experience.
 - **Scale difficulty over time.** Make early rewards easy to earn, then gradually slow down progression as the session continues.
 - **Check limits before rewarding.** Use `ZBDController.Instance.GetBalance` to retrieve the user's current balance and withdrawal cap, and adjust your reward flow based on this data.
-- **Use revenue events to boost limits.** When a user watches a rewarded ad or makes an in-app purchase, increase their withdrawal limit from your server to reflect the value they generated.
+- **Use revenue events to boost limits.** When a user watches a rewarded ad or makes an in-app purchase, increase their withdrawal limit from your server to reflect the value they generated. See [Increasing Limits with MMP Data](/earn/sdk/mmp-postbacks).
+- **Raise the limit, never the balance, from a monetization event.** Crediting rewards balance for watching an ad is cash-for-task and risks app store review. Monetization raises the ceiling; gameplay earns the points.

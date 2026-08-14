@@ -5,7 +5,25 @@ description: 'Make sure you have completed these steps before going live with th
 icon: 'clipboard-check'
 ---
 
-Before releasing your game to production, make sure you have completed the following:
+Before releasing your game to production, work through both lists below. The first decides whether your rewards will actually convert; the second decides whether the integration works.
+
+## Conversion readiness
+
+An integration can be technically perfect and still underperform. Confirm all three of the [things that drive conversion](/earn/sdk/player-comms#what-makes-rewards-convert) are in place before you ship.
+
+<Steps>
+  <Step title="Your UI/UX shows and explains how rewards work">
+    Players can see their balance and progress in your own game UI, and know what they've earned and why it's real. See the [Player Communication Guide](/earn/sdk/player-comms).
+  </Step>
+  <Step title="You're rewarding enough to be worth coming back for">
+    Rewards are sized off actual revenue, with a route to raise withdrawal limits from real monetization signals — and your player IDs are linked in both directions if you're using MMP data. See [Increasing Limits with MMP Data](/earn/sdk/mmp-postbacks).
+  </Step>
+  <Step title="You know your audience">
+    Your UA is aimed at players who want to earn, or would be interested in earning.
+  </Step>
+</Steps>
+
+## Technical readiness
 
 <Steps>
   <Step title="Set up attestation">

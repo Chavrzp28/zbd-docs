@@ -149,6 +149,7 @@
                   "earn/sdk/manage-rewards-balance",
                   "earn/sdk/gift-cards",
                   "earn/sdk/revenue-based-earning",
+                  "earn/sdk/mmp-postbacks",
                   "earn/sdk/manage-withdrawal-limits"
                 ]
               },
