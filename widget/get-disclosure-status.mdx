@@ -8,7 +8,7 @@ api: "GET https://api.zbdpay.com/api/v1/widget/users/{userId}/disclosures"
 
 Returns the user's acceptance status for each current disclosure type.
 
-Use this from your server only if your integration needs to check disclosure acceptance outside the hosted widget. Most integrations can let the widget handle disclosure prompts during the session.
+Use this from your server to determine which current disclosures the user must accept. Present any outstanding documents and collect the user's acceptance in your application before creating a widget session, then record it with [Submit Disclosure Acceptance](/widget/submit-disclosure-acceptance). Do not call this endpoint from a browser, mobile client, game client, or WebView.
 
 The API key determines the publisher/project context. `userId` is the ZBD user ID returned when the widget user is created or resolved.
 

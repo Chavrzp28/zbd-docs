@@ -10,6 +10,17 @@ Credit publisher points to a widget user's point balance. Amount is in **currenc
 
 This endpoint is idempotent on `idempotency_key`.
 
+## Reverse a fund
+
+To take back points that you previously funded, call
+[`POST /api/v1/widget/users/deplete`](/widget/deplete-user). This creates a new
+debit from the user's currently available point balance back to your configured
+sink/source account; it does not undo or mutate the original fund transfer.
+
+Use a new `idempotency_key` for the deplete request. A deplete can only succeed
+while the user has enough available points. It cannot recover points that have
+already been spent or cashed out.
+
 ## Configuration
 
 ### Header Parameters

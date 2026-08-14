@@ -1,6 +1,6 @@
 ---
 title: "Sandbox"
-description: "Test the full ZBD Widget flow without real money, real KYC, or real bank transfers."
+description: "Test the full ZBD Widget flow without real money, real identity verification, or real bank transfers."
 ---
 
 ## Overview
@@ -19,7 +19,7 @@ Every ZBD project includes a **sandbox environment** for testing the ZBD Widget 
 |---|---|---|
 | **User creation** | Creates sandbox-scoped widget users | Creates production widget users |
 | **Balance funding** | Credits test reward balance; no live pool is debited | Transfers publisher points from your live pool |
-| **KYC / Identity** | Controlled through sandbox KYC status helpers; no live Onfido review | Required for bank cashouts |
+| **Identity verification** | Controlled through sandbox identity verification status helpers; no live Onfido review | Required for bank cashouts |
 | **Bank linking (Plaid)** | Full Plaid sandbox flow | Real bank connections |
 | **ACH payout** | Simulated when sandbox bypass is enabled; no real transfer | Real ACH via banking partner |
 | **Disclosures** | Same status and acceptance model; bypass settings may skip cashout disclosure checks | Required disclosures can block cashout until accepted |
@@ -49,7 +49,7 @@ curl -X POST https://sandbox-api.zbdpay.com/api/v1/cashout/sandbox/users \
 ```
 
 <Note>
-  Sandbox user creation uses a sandbox-only endpoint. Use the returned `data.id` as `zbd_user_id` when funding the user and as the user ID when setting KYC status. Use `POST /api/v1/widget/users` only for production widget users.
+  Sandbox user creation uses a sandbox-only endpoint. Use the returned `data.id` as `zbd_user_id` when funding the user and as the user ID when setting identity verification status. Use `POST /api/v1/widget/users` only for production widget users.
 </Note>
 
 ### 3. Fund the Test User
@@ -91,7 +91,7 @@ Embed the returned `widget_url` in an iframe. In sandbox, the URL should point a
 </Note>
 
 <Note>
-  When you reach KYC in sandbox, use a **US address** so the approval path can complete successfully.
+  When you reach identity verification in sandbox, use a **US address** so the approval path can complete successfully.
 </Note>
 
 ## Sandbox Controls
@@ -103,11 +103,11 @@ For user rewards, use `POST /api/v1/widget/users/fund` and `POST /api/v1/widget/
 | Control | Endpoint | Request body |
 |---|---|---|
 | Create sandbox user | `POST /api/v1/cashout/sandbox/users` | `{ "reference_id": "test-player-1", "email": "test@yourcompany.com" }` |
-| Set user KYC status | `POST /api/v1/principal-accounts/{zbd_user_id}/kyc-status` | `{ "status": "approved", "country_code": "US" }` |
+| Set user identity verification status | `POST /api/v1/principal-accounts/{zbd_user_id}/kyc-status` | `{ "status": "approved", "country_code": "US" }` |
 | Add sandbox balance | `POST /api/v1/monetary-accounts/{monetary_account_id}/fund` | `{ "amount": 5000 }` |
 | Remove sandbox balance | `POST /api/v1/monetary-accounts/{monetary_account_id}/deplete` | `{ "amount": 5000 }` |
 
-KYC `status` must be `approved`, `rejected`, or `processing`. Include `country_code` when setting `approved`.
+The identity verification `status` must be `approved`, `rejected`, or `processing`. Include `country_code` when setting `approved`.
 
 Balance helper amounts use currency minor units. For USD, `5000` means `$50.00`.
 

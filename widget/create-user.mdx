@@ -11,7 +11,7 @@ Provisions a user in ZBD for your project. Idempotent — if a user with the sam
 Call this from your server before creating a widget session.
 
 <Note>
-  Some cashout methods require the user to accept the latest disclosure before cashout can proceed. The hosted widget can collect this during the session. If your integration records disclosure acceptance before opening the widget, see [Disclosure Agreements](/widget/disclosures).
+  Some cashout methods require acceptance of the latest disclosure before they can proceed. When `outstanding_disclosures` is not empty, your application must present those documents and record acceptance before creating a widget session. See [Disclosure Agreements](/widget/disclosures).
 </Note>
 
 ## Configuration

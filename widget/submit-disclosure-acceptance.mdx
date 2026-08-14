@@ -8,7 +8,9 @@ api: "POST https://api.zbdpay.com/api/v1/widget/users/{userId}/disclosures"
 
 Records the user's acceptance of the latest version of each disclosure type in `acceptedDisclosureTypeIds`.
 
-Use this from your server only if your integration collects disclosure acceptance outside the hosted widget. Do not call this endpoint from a browser, mobile client, game client, or WebView.
+Use this from your server after your application has presented the applicable
+documents and collected the user's acceptance. Do not call this endpoint from a
+browser, mobile client, game client, or WebView.
 
 ## Configuration
 
