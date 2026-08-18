@@ -146,6 +146,7 @@
                 "group": "Balances & Limits",
                 "pages": [
                   "earn/sdk/user-balance",
+                  "earn/sdk/withdrawal-events",
                   "earn/sdk/manage-rewards-balance",
                   "earn/sdk/gift-cards",
                   "earn/sdk/revenue-based-earning",
